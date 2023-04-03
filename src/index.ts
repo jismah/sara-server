@@ -8,12 +8,24 @@
 */
 
 import { PrismaClient } from '@prisma/client'
-import express from 'express'
+import express, { NextFunction, Request, Response } from 'express'
 
 const prisma = new PrismaClient()
 const app = express()
 
+const api_key: string = '123456';
+
+function checkApiKey(req: Request, res: Response, next: NextFunction): void {
+    const key: string = req.headers['x-api-key'] as string ?? '';
+    if (key && key === api_key) {
+        next();
+    } else {
+        res.status(401).send('Unauthorized');
+    }
+}
+
 app.use(express.json())
+app.use(checkApiKey);
 
 app.get('/', async (req, res) => {
     res.send('Welcome to RestAPI - Sara Project')
