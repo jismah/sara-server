@@ -19,6 +19,8 @@ app.get('/', async (req, res) => {
     res.send('Welcome to RestAPI - Sara Project')
 })
 
+// STUDENTS API
+
 app.get('/students', async (req, res) => {
     const students = await prisma.student.findMany()
     res.json(students)
@@ -31,25 +33,12 @@ app.get('/studentsWithParents', async (req, res) => {
     res.json(studentsWithParents)
 })
 
-app.get('/parents', async (req, res) => {
-    const parents = await prisma.parent.findMany()
-    res.json(parents)
-})
-
 app.get('/student/:id', async (req, res) => {
     const { id } = req.params
     const student = await prisma.student.findUnique({
         where: { id: Number(id) },
     })
     res.json(student)
-})
-
-app.get('/parent/:id', async (req, res) => {
-    const { id } = req.params
-    const parent = await prisma.parent.findUnique({
-        where: { id: Number(id) },
-    })
-    res.json(parent)
 })
 
 // CREATE STUDENT
@@ -67,6 +56,38 @@ app.post(`/student`, async (req, res) => {
     res.json(result)
 })
 
+app.put('/student/:id', async (req, res) => {
+    const { id } = req.params
+    const student = await prisma.student.update({
+        where: { id: Number(id) },
+        data: { ...req.body },
+    })
+    res.json(student)
+})
+
+app.delete('/student/:id', async (req, res) => {
+    const { id } = req.params
+    const student = await prisma.student.delete({
+        where: { id: Number(id) },
+    })
+    res.json(student)
+})
+
+// PARENTS API
+
+app.get('/parents', async (req, res) => {
+    const parents = await prisma.parent.findMany()
+    res.json(parents)
+})
+
+app.get('/parent/:id', async (req, res) => {
+    const { id } = req.params
+    const parent = await prisma.parent.findUnique({
+        where: { id: Number(id) },
+    })
+    res.json(parent)
+})
+
 app.post(`/parent`, async (req, res) => {
     const { identityCard, name, lastName1, lastName2, telephone, email } = req.body
 
@@ -82,26 +103,6 @@ app.post(`/parent`, async (req, res) => {
     })
     res.json(result)
 })
-
-// UPDATE STUDENT BY ID
-app.put('/student/:id', async (req, res) => {
-    const { id } = req.params
-    const student = await prisma.student.update({
-        where: { id: Number(id) },
-        data: { ...req.body },
-    })
-    res.json(student)
-})
-
-// DELETE STUDENT BY ID
-app.delete('/student/:id', async (req, res) => {
-    const { id } = req.params
-    const student = await prisma.student.delete({
-        where: { id: Number(id) },
-    })
-    res.json(student)
-})
-
 
 app.listen(3000, () =>
     console.log('SARA REST API server ready at: http://localhost:3000'),
