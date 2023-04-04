@@ -3,7 +3,6 @@
 
     TODO:
 
-    To see Prisma Studio: npx prisma studio
 
 */
 import express, { NextFunction, Request, Response, Router } from 'express'
@@ -23,6 +22,12 @@ function checkApiKey(req: Request, res: Response, next: NextFunction): void {
     }
 }
 
+function logIPAddress(req: Request, res: Response, next: NextFunction) {
+    const ipAddress = req.ip;
+    console.log(`La dirección IP del cliente es ${ipAddress}`);
+    next();
+}
+
 app.use(express.json())
 
 app.get('/', async (req, res) => {
@@ -33,6 +38,8 @@ app.get('/', async (req, res) => {
 const protectedRoutes: Router = express.Router();
 protectedRoutes.use(checkApiKey);
 
+
+app.use(logIPAddress);
 
 // Agregar el path de rutas protegidas
 app.use('/api', protectedRoutes);
