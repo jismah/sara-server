@@ -5,7 +5,7 @@
 
 
     COMMANDS:
-    
+        npx ts-node src/index.ts
 
 */
 import express, { NextFunction, Request, Response, Router } from 'express'
@@ -20,21 +20,27 @@ const api_keys: string[] = ['123456', '654321', '147258'];
 
 function checkApiKey(req: Request, res: Response, next: NextFunction): void {
     const key: string = req.headers['x-api-key'] as string ?? '';
-    if (key && api_keys.includes(key)) {
-        next();
-    } else {
-        res.status(401).send('Unauthorized');
-    }
+    findAuthKeyByKey(key).then((found) => {
+        console.log(found);
+
+        if (found) {
+            next();
+            console.log('Se encontró una clave con el valor proporcionado.');
+        } else {
+            res.status(401).send('Unauthorized');
+            console.log('No se encontró ninguna clave con el valor proporcionado.');
+        }
+    })
 }
 
-async function findAuthKeyByKey(key: string) {
+async function findAuthKeyByKey(key: string): Promise<boolean> {
     const foundKey = await prisma.authKey.findUnique({
         where: {
             key,
         },
     });
 
-    return foundKey;
+    return Boolean(foundKey);
 }
 
 function logIPAddress(req: Request, res: Response, next: NextFunction) {
@@ -54,7 +60,7 @@ const protectedRoutes: Router = express.Router();
 protectedRoutes.use(checkApiKey);
 
 
-app.use(logIPAddress);
+// app.use(logIPAddress);
 
 // Agregar el path de rutas protegidas
 app.use('/api', protectedRoutes);
