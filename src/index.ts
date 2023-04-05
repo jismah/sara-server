@@ -4,12 +4,17 @@
     TODO:
 
 
+    COMMANDS:
+    
+
 */
 import express, { NextFunction, Request, Response, Router } from 'express'
+import { PrismaClient } from '@prisma/client'
 import studentsRouter from './routes/students';
 import parentsRouter from './routes/parents';
 
 const app = express()
+const prisma = new PrismaClient()
 
 const api_keys: string[] = ['123456', '654321', '147258'];
 
@@ -20,6 +25,16 @@ function checkApiKey(req: Request, res: Response, next: NextFunction): void {
     } else {
         res.status(401).send('Unauthorized');
     }
+}
+
+async function findAuthKeyByKey(key: string) {
+    const foundKey = await prisma.authKey.findUnique({
+        where: {
+            key,
+        },
+    });
+
+    return foundKey;
 }
 
 function logIPAddress(req: Request, res: Response, next: NextFunction) {

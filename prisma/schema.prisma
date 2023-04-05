@@ -11,30 +11,38 @@ datasource db {
 }
 
 model Student {
-  id Int @id @default(autoincrement())
-  name String
+  id        Int     @id @default(autoincrement())
+  name      String
   lastName1 String
   lastName2 String?
-  status String
-  parent Parent @relation(fields: [idParent], references: [id])
-  idParent Int
+  status    String
+  parent    Parent  @relation(fields: [idParent], references: [id])
+  idParent  Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  deleted Boolean @default(false)
+  deleted   Boolean  @default(false)
 }
 
 model Parent {
-  id Int @id @default(autoincrement())
-  identityCard String @unique
-  name String
-  lastName1 String
-  lastName2 String?
-  telephone String?
-  email String @unique
-  children Student[]
+  id           Int       @id @default(autoincrement())
+  identityCard String    @unique
+  name         String
+  lastName1    String
+  lastName2    String?
+  telephone    String?
+  email        String    @unique
+  children     Student[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  deleted Boolean @default(false)
+  deleted   Boolean  @default(false)
+}
+
+model AuthKey {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  owner     String?
+  createdAt DateTime @default(now())
+  deleted   Boolean  @default(false)
 }
