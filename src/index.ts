@@ -6,6 +6,7 @@
 
     COMMANDS:
         npx ts-node src/index.ts
+        npx prisma generate
 
 */
 import express, { NextFunction, Request, Response, Router } from 'express'
@@ -16,19 +17,14 @@ import parentsRouter from './routes/parents';
 const app = express()
 const prisma = new PrismaClient()
 
-const api_keys: string[] = ['123456', '654321', '147258'];
-
 function checkApiKey(req: Request, res: Response, next: NextFunction): void {
     const key: string = req.headers['x-api-key'] as string ?? '';
     findAuthKeyByKey(key).then((found) => {
-        console.log(found);
-
+        // console.log(found);
         if (found) {
             next();
-            console.log('Se encontró una clave con el valor proporcionado.');
         } else {
             res.status(401).send('Unauthorized');
-            console.log('No se encontró ninguna clave con el valor proporcionado.');
         }
     })
 }
@@ -59,8 +55,8 @@ app.get('/', async (req, res) => {
 const protectedRoutes: Router = express.Router();
 protectedRoutes.use(checkApiKey);
 
-
-// app.use(logIPAddress);
+// Rastrea IP de las peticiones
+app.use(logIPAddress);
 
 // Agregar el path de rutas protegidas
 app.use('/api', protectedRoutes);

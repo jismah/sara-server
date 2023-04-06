@@ -1,9 +1,10 @@
-import cryptoRandomString from 'crypto-random-string';
+import crypto from 'crypto';
 
-function generateAuthKey(length: number): string {
-    return cryptoRandomString({length: length, type: 'alphanumeric'});
-  }
+function generateAuthKey(): string {
+  const key = crypto.randomBytes(8);
+  return key.toString('base64');
+}
 
-  const newKey = generateAuthKey(8);
-  console.log(newKey);
+const authKey = generateAuthKey();
+console.log(authKey);
 
