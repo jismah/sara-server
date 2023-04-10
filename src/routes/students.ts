@@ -7,8 +7,11 @@ const prisma = new PrismaClient()
 // LISTAR ESTUDIANTES CON PAGINACION DE 10
 router.get('/', async (req, res) => {
     const students = await prisma.student.findMany({
-        take: 10
+        where: { deleted: false},
     })
+
+    await prisma.$disconnect();
+
     res.json(students)
 });
 
@@ -18,6 +21,8 @@ router.get('/:id', async (req, res) => {
     const student = await prisma.student.findUnique({
         where: { id: Number(id) },
     })
+    await prisma.$disconnect();
+
     res.json(student)
 })
 
@@ -27,6 +32,9 @@ router.delete('/:id', async (req, res) => {
     const student = await prisma.student.delete({
         where: { id: Number(id) },
     })
+
+    await prisma.$disconnect();
+
     res.json(student)
 })
 
@@ -37,36 +45,41 @@ router.put('/:id', async (req, res) => {
         where: { id: Number(id) },
         data: { ...req.body },
     })
+
+    await prisma.$disconnect();
+
     res.json(student)
 })
 
 // CREAR UN NUEVO ESTUDIANTE
-// router.post('/', async (req, res) => {
-//     const { name, lastName1, lastName2, status, idParent } = req.body
-
-//     const result = await prisma.student.create({
-//         data: {
-//             name: name,
-//             lastName1: lastName1,
-//             lastName2: lastName2,
-//             status: status,
-//             idParent: idParent,
-//         },
-//     })
-//     res.status(200).json(result);
-// })
-
 router.post('/', async (req, res) => {
-    
-    res.status(200).json();
+    const { name, lastName1, lastName2, status, idParent } = req.body
+
+    const result = await prisma.student.create({
+        data: {
+            name: name,
+            lastName1: lastName1,
+            lastName2: lastName2,
+            status: status,
+            idParent: Number(idParent),
+        },
+    })
+
+    await prisma.$disconnect();
+
+    res.status(200).json(result);
 })
+
 
 // LISTAR TODOS LOS ESTUDIANTES CON SUS PADRES
 router.get('/studentsWithParents', async (req, res) => {
     const studentsWithParents = await prisma.student.findMany({
         include: { parent: true },
     })
-    res.json(studentsWithParents)
+
+    await prisma.$disconnect();
+
+    res.status(200).json(studentsWithParents)
 })
 
 

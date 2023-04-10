@@ -21,6 +21,9 @@ import parentsRouter from './routes/parents';
 const app = express()
 const prisma = new PrismaClient()
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 function checkApiKey(req: Request, res: Response, next: NextFunction): void {
     const key: string = req.headers['x-api-key'] as string ?? '';
     findAuthKeyByKey(key).then((found) => {
@@ -39,6 +42,8 @@ async function findAuthKeyByKey(key: string): Promise<boolean> {
         },
     });
 
+    await prisma.$disconnect();
+
     return Boolean(foundKey);
 }
 
@@ -48,7 +53,6 @@ function logIPAddress(req: Request, res: Response, next: NextFunction) {
     next();
 }
 
-app.use(express.json())
 
 app.get('/', async (req, res) => {
     res.send('Welcome to RestAPI - Sara Project')
