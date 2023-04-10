@@ -2,11 +2,15 @@
     BACKEND SARA PROJECT
 
     TODO:
+        °Arreglar Endpoints de crear, modificar y eliminar
 
 
     COMMANDS:
         npx ts-node src/index.ts
         npx prisma generate
+
+    API KEY Ex:
+        x-api-key: e923ad05-f9a2-4a4e-887c-20cef3daefdc
 
 */
 import express, { NextFunction, Request, Response, Router } from 'express'
@@ -20,7 +24,6 @@ const prisma = new PrismaClient()
 function checkApiKey(req: Request, res: Response, next: NextFunction): void {
     const key: string = req.headers['x-api-key'] as string ?? '';
     findAuthKeyByKey(key).then((found) => {
-        // console.log(found);
         if (found) {
             next();
         } else {
