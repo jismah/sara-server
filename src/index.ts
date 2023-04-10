@@ -14,6 +14,7 @@
 
 */
 import express, { NextFunction, Request, Response, Router } from 'express'
+import cors from 'cors';
 import { PrismaClient } from '@prisma/client'
 import studentsRouter from './routes/students';
 import parentsRouter from './routes/parents';
@@ -21,6 +22,13 @@ import parentsRouter from './routes/parents';
 const app = express()
 const prisma = new PrismaClient()
 
+const corsOptions = {
+    origin: '*',
+    credentials: true, //access-control-allow-credentials:true
+    optionSuccessStatus: 200,
+}
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
