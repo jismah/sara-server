@@ -8,6 +8,7 @@ const prisma = new PrismaClient()
 router.get('/', async (req, res) => {
     const students = await prisma.student.findMany({
         where: { deleted: false},
+        take: 10,
     })
 
     await prisma.$disconnect();
@@ -21,16 +22,20 @@ router.get('/:id', async (req, res) => {
     const student = await prisma.student.findUnique({
         where: { id: Number(id) },
     })
+
     await prisma.$disconnect();
 
     res.json(student)
 })
 
-// ELIMINAR UN ESTUDIANTE MEDIANTE ID
+// ELIMINAR (LOGICO) UN ESTUDIANTE MEDIANTE ID
 router.delete('/:id', async (req, res) => {
     const { id } = req.params
-    const student = await prisma.student.delete({
+    const student = await prisma.student.update({
         where: { id: Number(id) },
+        data: { 
+            deleted: true,
+        }
     })
 
     await prisma.$disconnect();
@@ -55,7 +60,9 @@ router.put('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     const { name, lastName1, lastName2, status, idParent } = req.body
 
-    const result = await prisma.student.create({
+    const result = "";
+
+/*     const result = await prisma.student.create({
         data: {
             name: name,
             lastName1: lastName1,
@@ -63,7 +70,7 @@ router.post('/', async (req, res) => {
             status: status,
             idParent: Number(idParent),
         },
-    })
+    }) */
 
     await prisma.$disconnect();
 

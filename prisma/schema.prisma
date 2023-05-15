@@ -11,13 +11,52 @@ datasource db {
 }
 
 model Student {
-  id        Int     @id @default(autoincrement())
-  name      String
-  lastName1 String
-  lastName2 String?
-  status    String
-  parent    Parent  @relation(fields: [idParent], references: [id])
-  idParent  Int
+  id         Int           @id @default(autoincrement())
+  name       String
+  lastName1  String
+  lastName2  String?
+  status     StatusStudent
+  commentary String? //Comentario opcional sobre el estudiante posterior a su entrevista
+  dateBirth  DateTime
+  housePhone String
+  address    String
+  //Relacion 1:N con Tutor
+  tutors     Tutor[] //Persona autorizada (Tutor) para buscar el niño
+
+  //Relacion 1:1 con Contacto de emergia
+  emergencyContact EmergencyContact?
+
+  medicalCondition String? //Alergia, intolerancia, condición o enfermedad 
+
+  //Relación 1:N con Pediatrician
+  idPediatrician Int
+  pediatrician   Pediatrician @relation(fields: [idPediatrician], references: [id])
+
+  //Relacion de 1:N con Family
+  idFamily Int
+  family   Family @relation(fields: [idFamily], references: [id])
+
+  progressDesired String?
+
+  allowedPictures Boolean?
+
+  //Relacion 1:N con City
+  city   City @relation(fields: [idCity], references: [id])
+  idCity Int
+
+  //Relacion 1:N con Parent
+  parent   Parent @relation(fields: [idParent], references: [id])
+  idParent Int
+
+  //Relacion 1:N con Program
+  idProgram Int
+  program   Program @relation(fields: [idProgram], references: [id])
+
+  //Relacion N:M con Group
+  groups StudentOnGroup[]
+
+  //Relacion 1:N Con Evaluation
+  evaluations Evaluation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -32,17 +71,498 @@ model Parent {
   lastName2    String?
   telephone    String?
   email        String    @unique
+  occupation   String?
+  //Relacion 1:N con Student
   children     Student[]
+
+  //Relacion 1:N con Payment
+  payments Payment[]
+
+  //Relacion de 1:N con Family
+  idFamily Int
+  family   Family @relation(fields: [idFamily], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deleted   Boolean  @default(false)
 }
 
+model Family {
+  id       Int       @id @default(autoincrement())
+  //Relacion 1:N con Student
+  students Student[]
+  //Relación 1:N con Parent
+  parents  Parent[]
+  //Relacion 1:1 con user
+  user     User?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Tutor {
+  id         Int     @id @default(autoincrement())
+  name       String
+  occupation String?
+  phone      String
+
+  //Relacion de 1:N con estudiante
+  idStudent Int
+  student   Student @relation(fields: [idStudent], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model EmergencyContact {
+  id    Int    @id @default(autoincrement())
+  name  String
+  phone String
+
+  //Relacion de 1:1 con estudiante
+  idStudent Int     @unique
+  student   Student @relation(fields: [idStudent], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Pediatrician {
+  id                 Int    @id @default(autoincrement())
+  name               String
+  medicalInstitution String
+  officeNumber       String
+  phone              String
+
+  //Relacion de 1:N con estudiante
+  students Student[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  amount    Float
+  //Relacion 1:N con Parent
+  parent    Parent   @relation(fields: [idParent], references: [id])
+  idParent  Int
+  //Relacion 1:N con Invoice
+  invoice   Invoice  @relation(fields: [idInvoice], references: [id])
+  idInvoice Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Product {
+  id        Int     @id @default(autoincrement())
+  name      String
+  price     Float
+  cost      Float
+  available Boolean
+  status    String
+
+  //Relacion 1:1 con DetalleSale
+  detailSale DetailSale?
+
+  //Relacion 1:1 con DetailOrder
+  detailOrder DetailOrder?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Invoice {
+  id     Int      @id @default(autoincrement())
+  date   DateTime
+  amount Float
+  status String
+
+  //Relacion 1:N con Payment
+  payments Payment[]
+
+  //Relacion 1:N con Camp
+  camp   Camp @relation(fields: [idCamp], references: [id])
+  idCamp Int
+
+  //Relacion 1:1 con Sale
+  sale   Sale @relation(fields: [idSale], references: [id])
+  idSale Int  @unique
+
+  //Relacion 1:1 con Order
+  order   Order @relation(fields: [idOrder], references: [id])
+  idOrder Int   @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Sale {
+  id    Int      @id @default(autoincrement())
+  date  DateTime
+  total Float
+
+  //Relacion 1:1 con Invoice
+  invoice Invoice? //Verificar 
+
+  //Relacion 1:N con DetailSale
+  detailSales DetailSale[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model DetailSale {
+  id           Int   @id @default(autoincrement())
+  quantity     Int
+  unitaryPrice Float
+
+  //Relacion 1:1 con Product
+  product   Product @relation(fields: [idProduct], references: [id])
+  idProduct Int     @unique
+
+  //Relacion 1:N con Sale
+  sale   Sale @relation(fields: [idSale], references: [id])
+  idSale Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Order {
+  id     Int      @id @default(autoincrement())
+  date   DateTime
+  total  Float
+  status Boolean
+
+  //Relacion 1:1 Invoice
+  invoice Invoice?
+
+  //Relacion 1:N DetailOrder
+  detailOrders DetailOrder[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model DetailOrder {
+  id       Int @id @default(autoincrement())
+  quantity Int
+
+  //Relacion 1:N Order
+  order   Order @relation(fields: [idOrder], references: [id])
+  idOrder Int
+
+  //Relacion 1:1 con Product
+  product   Product @relation(fields: [idProduct], references: [id])
+  idProduct Int     @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Program {
+  id            Int    @id @default(autoincrement())
+  description   String
+  maxStudents   Int
+  inscription   Float
+  monthlyAmount Float
+
+  //Relacion 1:N con Student
+  students Student[]
+
+  //Relacion 1:N con Objectives
+  objectives Objectives[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Objectives {
+  id    Int    @id @default(autoincrement())
+  title String
+  mark  String
+
+  //Relacion 1:N con Program
+  program   Program @relation(fields: [idProgram], references: [id])
+  idProgram Int
+
+  //Relacion 1:N con Evaluation
+  evaluation   Evaluation @relation(fields: [idEvaluation], references: [id])
+  idEvaluation Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Evaluation {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  comentary String?
+
+  //Relacion 1:N con Objectives
+  objectives Objectives[]
+
+  //Relacion 1:N con Student
+  idStudent Int
+  student   Student @relation(fields: [idStudent], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Staff {
+  id            Int    @id @default(autoincrement())
+  name          String
+  phone         String
+  salary        Float
+  paymentMethod String
+  position      String
+  address       String
+
+  //Relacion 1:N Ciudad
+  city   City @relation(fields: [idCity], references: [id])
+  idCity Int
+
+  //Relacion 1:N con Shift
+  shifts Shift[]
+
+  //Relación 1:1 con Professor
+  professor Professor?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model Professor {
+  id               Int    @id @default(autoincrement())
+  academicCategory String
+
+  idStaff Int   @unique
+  staff   Staff @relation(fields: [idStaff], references: [id])
+
+  groups ProfesorsForGroup[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  name      String
+  lastName1 String
+  lastName2 String?
+  password  String
+  email     String   @unique
+  phone     String
+  role      UserRole
+
+  //Si el UserRole es USER, se vinculará a una familia
+  //Relacion 1:1 con Family
+  idFamily Int    @unique
+  family   Family @relation(fields: [idFamily], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model City {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  //Relacion 1:N con Staff
+  staffs Staff[]
+
+  //Relacion 1:N con Student
+  students Student[]
+}
+
+model Shift {
+  id          Int      @id @default(autoincrement())
+  initialHour DateTime
+  finishHour  DateTime
+
+  //Relacion 1:N con Staff
+  staff   Staff @relation(fields: [idStaff], references: [id])
+  idStaff Int
+
+  //Relacion 1:N con Group
+  groups Group[]
+
+  //Relacion 1:N con AcademicYear
+  academicYear   AcademicYear @relation(fields: [idAcademicYear], references: [id])
+  idAcademicYear Int
+
+  //Relacion 1:N con WeekDay
+  weekDay   WeekDay @relation(fields: [idWeekDay], references: [id])
+  idWeekDay Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+model WeekDay {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  //Relacion 1:N con Shift
+  shifts Shift[]
+}
+
+model Group {
+  id          Int @id @default(autoincrement())
+  maxStudents Int
+
+  //Relacion N:M con Professor
+  professor ProfesorsForGroup[]
+
+  //Relacion 1:N con Shift
+  shift   Shift @relation(fields: [idShift], references: [id])
+  idShift Int
+
+  //Relacion M:N con Student 
+  students StudentOnGroup[]
+
+  //Relacion M:N con Camp
+  camps GroupOnCamp[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+//Relacion N:M de Professor con Group
+model ProfesorsForGroup {
+  idProfessor Int
+  professor   Professor @relation(fields: [idProfessor], references: [id])
+  idGroup     Int
+  group       Group     @relation(fields: [idGroup], references: [id])
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  deleted    Boolean  @default(false)
+  assignedBy String
+
+  @@id([idProfessor, idGroup])
+}
+
+//Relacion N:M de Student con Group
+model StudentOnGroup {
+  student   Student @relation(fields: [idStudent], references: [id])
+  idStudent Int
+  group     Group   @relation(fields: [idGroup], references: [id])
+  idGroup   Int
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  deleted    Boolean  @default(false)
+  assignedBy String
+
+  //Primary key conjunta
+  @@id([idStudent, idGroup])
+}
+
+//Relacion N:M de Camp con Group
+model GroupOnCamp {
+  camp    Camp  @relation(fields: [idCamp], references: [id])
+  idCamp  Int
+  group   Group @relation(fields: [idGroup], references: [id])
+  idGroup Int
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  deleted    Boolean  @default(false)
+  assignedBy String
+
+  //Primary key conjunta
+  @@id([idCamp, idGroup])
+}
+
+model AcademicYear {
+  id        Int      @id @default(autoincrement())
+  startTime DateTime
+  endTime   DateTime
+
+  //Relacion 1:N con Shift
+  shifts Shift[]
+
+  //Relacion 1:N con Camp
+  camps Camp[]
+}
+
+//Modelos relacionados a campamento:
+model Camp {
+  id          Int    @id @default(autoincrement())
+  name        String //Nombre campamento
+  description String
+
+  //Relacion 1:N con AcademicYear
+  academicYear   AcademicYear @relation(fields: [idAcademicYear], references: [id])
+  idAcademicYear Int
+
+  //Relacion 1:N con Activity
+  activities Activity[]
+
+  //Relacion 1:N con invoices
+  invoices Invoice[]
+
+  //Relacion N:M con Group
+  groups GroupOnCamp[]
+}
+
+model Activity {
+  id          Int      @id @default(autoincrement())
+  startTime   DateTime
+  endTime     DateTime
+  day         DateTime
+  description String
+
+  //Relacion 1:N con Camp
+  camp   Camp @relation(fields: [idCamp], references: [id])
+  idCamp Int
+}
+
+// KEYS AUTH API 
 model AuthKey {
   id        Int      @id @default(autoincrement())
   key       String   @unique
   owner     String?
   createdAt DateTime @default(now())
   deleted   Boolean  @default(false)
+}
+
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  USER //Usuario de las Familias
+  ACCOUNTANT
+  PROFESSOR
+}
+
+enum StatusStudent {
+  ENROLLED
+  REJECTED
+  WAITLISTED
+  ACCEPTED_NOT_ENROLLED //Aceptado pero no inscrito
 }

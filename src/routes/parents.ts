@@ -57,7 +57,8 @@ router.put('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     const { identityCard, name, lastName1, lastName2, telephone, email } = req.body
 
-    const result = await prisma.parent.create({
+    const result = "";
+/*     const result = await prisma.parent.create({
         data: {
             identityCard: identityCard,
             name: name,
@@ -66,7 +67,7 @@ router.post('/', async (req, res) => {
             telephone: telephone,
             email: email,
         }
-    })
+    }) */
 
     await prisma.$disconnect();
 
