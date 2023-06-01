@@ -1,82 +1,169 @@
-import { Router } from 'express';
+import { Router, response } from 'express';
 import { PrismaClient } from '@prisma/client'
+import validator from '../utils/validatorUtils';
+import resProcessor from '../utils/responseProcessor';
+import errorHandler from '../utils/errorHandler';
 
 const router = Router();
 const prisma = new PrismaClient()
 
+function handleError(error: any) {
+    const object = "GroupOnCamp";
+    return errorHandler.checkError(object, error);
+}
+
 // LISTAR CON PAGINACION DE 10
 router.get('/', async (req, res) => {
-    const groupOnCamps = await prisma.groupOnCamp.findMany({
-        where: {
-            deleted: false
-        },
-        take: 10,
-    })
+    let groupOnCamps;
+    try {
+        groupOnCamps = await prisma.groupOnCamp.findMany({
+            where: {
+                deleted: false
+            },
+            take: 10,
+        });
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    await prisma.$disconnect();
-
-    res.json(groupOnCamps)
+    res.json(resProcessor.concatStatus(200, groupOnCamps));
 });
 
 // LISTAR MEDIANTE ID
-/* router.get('/:id', async (req, res) => {
-    const { id } = req.params
-    const groupOnCamp = await prisma.groupOnCamp.findUnique({
-        where: { idCamp_idGroup: Number(id) },
-    })
+router.get('/:idCamp/:idGroup', async (req, res) => {
+    const { idCamp, idGroup } = req.params
 
-    await prisma.$disconnect();
+    let groupOnCamp;
+    try {
+        groupOnCamp = await prisma.groupOnCamp.findUnique({
+            where: {
+                idCamp_idGroup: {
+                    idCamp: Number(idCamp),
+                    idGroup: Number(idGroup),
+                },
+            },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
 
-    res.json(groupOnCamp)
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.json(resProcessor.concatStatus(200, groupOnCamp));
 })
 
 // ELIMINAR (LOGICO) MEDIANTE ID
-router.delete('/:id', async (req, res) => {
-    const { id } = req.params
-    const groupOnCamp = await prisma.groupOnCamp.update({
-        where: { id: Number(id) },
-        data: { 
-            deleted: true
-        }
-    })
+router.delete('/:idCamp/:idGroup', async (req, res) => {
+    const { idCamp, idGroup } = req.params
 
-    await prisma.$disconnect();
+    let groupOnCamp;
+    try {
+        groupOnCamp = await prisma.groupOnCamp.update({
+            where: {
+                idCamp_idGroup: {
+                    idCamp: Number(idCamp),
+                    idGroup: Number(idGroup),
+                },
+            },
+            data: { 
+                deleted: true
+            }
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    res.json(groupOnCamp)
-}) */
+    res.json(resProcessor.concatStatus(200, groupOnCamp));
+})
 
 // ACTUALIZAR MEDIANTE ID
-/* router.put('/:id', async (req, res) => {
-    const { id } = req.params
-    const groupOnCamp = await prisma.groupOnCamp.update({
-        where: { id: Number(id) },
-        data: { ...req.body },
-    })
+router.put('/:idCamp/:idGroup', async (req, res) => {
+    const { idCamp, idGroup } = req.params
+    const { assignedBy} = req.body;
 
-    await prisma.$disconnect();
+    if (!(idCamp && idGroup && assignedBy)) {
+        return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos' ));
+    }
 
-    res.json(groupOnCamp)
-}) */
+    const valid = await validate(idCamp, idGroup);
+    if (!valid.result) {
+        return res.json(resProcessor.newMessage(400, valid.message));
+    }
+
+    let groupOnCamp;
+    try {
+        groupOnCamp = await prisma.groupOnCamp.update({
+            where: {
+                idCamp_idGroup: {
+                  idCamp: Number(idCamp),
+                  idGroup: Number(idGroup),
+                },
+            },
+            data: {
+                assignedBy: assignedBy || undefined,
+            },
+        });
+    } catch (error: any) {
+        return res.json(handleError(error));
+
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.json(resProcessor.concatStatus(200, groupOnCamp));
+})
 
 // CREAR NUEVO RECORD
 router.post('/', async (req, res) => {
-    const result = "";
+    const { idCamp, idGroup, assignedBy} = req.body;
 
-/*     const result = await prisma.groupOnCamp.create({
-        data: {
-            name: name,
-            lastName1: lastName1,
-            lastName2: lastName2,
-            status: status,
-            idParent: Number(idParent),
-        },
-    }) */
+    if (!(idCamp && idGroup && assignedBy)) {
+        return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos' ));
+    }
 
-    await prisma.$disconnect();
+    const valid = await validate(idCamp, idGroup);
+    if (!valid.result) {
+        return res.json(resProcessor.newMessage(400, valid.message));
+    }
 
-    res.status(200).json(result);
+    let result;
+    try {
+        result = await prisma.groupOnCamp.create({
+            data: {
+                idCamp: Number(idCamp),
+                idGroup: Number(idGroup),
+                assignedBy: assignedBy,
+            },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.status(200).json(resProcessor.concatStatus(200, result));
 })
 
-
+async function validate(idCamp: string, idGroup: string) {
+    
+    let message = "";
+    if (idCamp && !validator.isNumeric(idCamp)) {
+        message = "Id del campamento invalido: No numerico.";
+        return {result: false, message: message}
+    }
+    if (idGroup && !validator.isNumeric(idGroup)) {
+        message = "Id del grupo invalido: No numerico.";
+        return {result: false, message: message}
+    }
+    return {result: true}
+}
 
 export default router;

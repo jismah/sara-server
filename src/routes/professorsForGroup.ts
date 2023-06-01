@@ -8,15 +8,15 @@ const router = Router();
 const prisma = new PrismaClient()
 
 function handleError(error: any) {
-    const object = "StudentOnGroup";
+    const object = "ProfesorsForGroup";
     return errorHandler.checkError(object, error);
 }
 
 // LISTAR CON PAGINACION DE 10
 router.get('/', async (req, res) => {
-    let studentOnGroup;
+    let profesorsForGroups;
     try {
-        studentOnGroup = await prisma.studentOnGroup.findMany({
+        profesorsForGroups = await prisma.profesorsForGroup.findMany({
             where: {
                 deleted: false
             },
@@ -29,19 +29,19 @@ router.get('/', async (req, res) => {
         await prisma.$disconnect();
     }
 
-    res.json(resProcessor.concatStatus(200, studentOnGroup));
+    res.json(resProcessor.concatStatus(200, profesorsForGroups));
 });
 
 // LISTAR MEDIANTE ID
-router.get('/:idStudent/:idGroup', async (req, res) => {
-    const { idStudent, idGroup } = req.params
+router.get('/:idProfessor/:idGroup', async (req, res) => {
+    const { idProfessor, idGroup } = req.params
 
-    let studentOnGroup;
+    let profesorsForGroup;
     try {
-        studentOnGroup = await prisma.studentOnGroup.findUnique({
+        profesorsForGroup = await prisma.profesorsForGroup.findUnique({
             where: {
-                idStudent_idGroup: {
-                    idStudent: Number(idStudent),
+                idProfessor_idGroup: {
+                    idProfessor: Number(idProfessor),
                     idGroup: Number(idGroup),
                 },
             },
@@ -53,19 +53,19 @@ router.get('/:idStudent/:idGroup', async (req, res) => {
         await prisma.$disconnect();
     }
 
-    res.json(resProcessor.concatStatus(200, studentOnGroup));
+    res.json(resProcessor.concatStatus(200, profesorsForGroup));
 })
 
 // ELIMINAR (LOGICO) MEDIANTE ID
-router.delete('/:idStudent/:idGroup', async (req, res) => {
-    const { idStudent, idGroup } = req.params
+router.delete('/:idProfessor/:idGroup', async (req, res) => {
+    const { idProfessor, idGroup } = req.params
 
-    let studentOnGroup;
+    let profesorsForGroup;
     try {
-        studentOnGroup = await prisma.studentOnGroup.update({
+        profesorsForGroup = await prisma.profesorsForGroup.update({
             where: {
-                idStudent_idGroup: {
-                    idStudent: Number(idStudent),
+                idProfessor_idGroup: {
+                    idProfessor: Number(idProfessor),
                     idGroup: Number(idGroup),
                 },
             },
@@ -80,29 +80,29 @@ router.delete('/:idStudent/:idGroup', async (req, res) => {
         await prisma.$disconnect();
     }
 
-    res.json(resProcessor.concatStatus(200, studentOnGroup));
+    res.json(resProcessor.concatStatus(200, profesorsForGroup));
 })
 
 // ACTUALIZAR MEDIANTE ID
-router.put('/:idStudent/:idGroup', async (req, res) => {
-    const { idStudent, idGroup } = req.params
+router.put('/:idProfessor/:idGroup', async (req, res) => {
+    const { idProfessor, idGroup } = req.params
     const { assignedBy} = req.body;
 
-    if (!(idStudent && idGroup && assignedBy)) {
+    if (!(idProfessor && idGroup && assignedBy)) {
         return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos' ));
     }
 
-    const valid = await validate(idStudent, idGroup);
+    const valid = await validate(idProfessor, idGroup);
     if (!valid.result) {
         return res.json(resProcessor.newMessage(400, valid.message));
     }
 
-    let studentOnGroup;
+    let profesorsForGroup;
     try {
-        studentOnGroup = await prisma.studentOnGroup.update({
+        profesorsForGroup = await prisma.profesorsForGroup.update({
             where: {
-                idStudent_idGroup: {
-                  idStudent: Number(idStudent),
+                idProfessor_idGroup: {
+                  idProfessor: Number(idProfessor),
                   idGroup: Number(idGroup),
                 },
             },
@@ -117,27 +117,27 @@ router.put('/:idStudent/:idGroup', async (req, res) => {
         await prisma.$disconnect();
     }
 
-    res.json(resProcessor.concatStatus(200, studentOnGroup));
+    res.json(resProcessor.concatStatus(200, profesorsForGroup));
 })
 
 // CREAR NUEVO RECORD
 router.post('/', async (req, res) => {
-    const { idStudent, idGroup, assignedBy} = req.body;
+    const { idProfessor, idGroup, assignedBy} = req.body;
 
-    if (!(idStudent && idGroup && assignedBy)) {
+    if (!(idProfessor && idGroup && assignedBy)) {
         return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos' ));
     }
 
-    const valid = await validate(idStudent, idGroup);
+    const valid = await validate(idProfessor, idGroup);
     if (!valid.result) {
         return res.json(resProcessor.newMessage(400, valid.message));
     }
 
     let result;
     try {
-        result = await prisma.studentOnGroup.create({
+        result = await prisma.profesorsForGroup.create({
             data: {
-                idStudent: Number(idStudent),
+                idProfessor: Number(idProfessor),
                 idGroup: Number(idGroup),
                 assignedBy: assignedBy,
             },
@@ -152,11 +152,11 @@ router.post('/', async (req, res) => {
     res.status(200).json(resProcessor.concatStatus(200, result));
 })
 
-async function validate(idStudent: string, idGroup: string) {
+async function validate(idProfessor: string, idGroup: string) {
     
     let message = "";
-    if (idStudent && !validator.isNumeric(idStudent)) {
-        message = "Id del estudiante invalido: No numerico.";
+    if (idProfessor && !validator.isNumeric(idProfessor)) {
+        message = "Id del profesor invalido: No numerico.";
         return {result: false, message: message}
     }
     if (idGroup && !validator.isNumeric(idGroup)) {

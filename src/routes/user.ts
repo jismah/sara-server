@@ -1,80 +1,201 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client'
+import validator from '../utils/validatorUtils';
+import resProcessor from '../utils/responseProcessor';
+import errorHandler from '../utils/errorHandler';
 
 const router = Router();
 const prisma = new PrismaClient()
 
+function handleError(error: any) {
+    const object = "User";
+    return errorHandler.checkError(object, error);
+}
+
+const userRoles = ['SUPERADMIN', 'ADMIN', 'USER',
+ 'ACCOUNTANT', 'PROFESSOR'];
+
 // LISTAR CON PAGINACION DE 10
 router.get('/', async (req, res) => {
-    const users = await prisma.user.findMany({
-        where: { deleted: false },
-    })
+    let users;
+    try {
+        users = await prisma.user.findMany({
+            where: { deleted: false },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    await prisma.$disconnect();
-
-    res.json(users)
+    res.json(resProcessor.concatStatus(200, users));
 });
 
 // LISTAR MEDIANTE ID
 router.get('/:id', async (req, res) => {
     const { id } = req.params
-    const user = await prisma.user.findUnique({
-        where: { id: Number(id) },
-    })
 
-    await prisma.$disconnect();
+    let user;
+    try {
+        user = await prisma.user.findUnique({
+            where: { id: Number(id) },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    res.json(user)
+    res.json(resProcessor.concatStatus(200, user));
 })
 
 // ELIMINAR (LOGICO) MEDIANTE ID
 router.delete('/:id', async (req, res) => {
     const { id } = req.params
-    const user = await prisma.user.update({
-        where: { id: Number(id) },
-        data: { 
-            deleted: true,
-        }
-    })
 
-    await prisma.$disconnect();
+    let user;
+    try {
+        user = await prisma.user.update({
+            where: { id: Number(id) },
+            data: { 
+                deleted: true,
+            }
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    res.json(user)
+    res.json(resProcessor.concatStatus(200, user));
 })
 
 // ACTUALIZAR MEDIANTE ID
 router.put('/:id', async (req, res) => {
-    const { id } = req.params
-    const user = await prisma.user.update({
-        where: { id: Number(id) },
-        data: { ...req.body },
-    })
+    const { username, name, lastName1, lastName2, password,
+         email, phone, role, idFamily } = req.body;
+    const { id } = req.params;
 
-    await prisma.$disconnect();
+    const valid = await validate(username, email, role, phone);
+    if (!valid.result) {
+        return res.json(resProcessor.newMessage(400, valid.message));
+    }
 
-    res.json(user)
+    let user;
+    try {
+        user = await prisma.user.update({
+            where: { id: Number(id) },
+            data: {
+                username: username || undefined,
+                name: name || undefined,
+                lastName1: lastName1 || undefined,
+                lastName2: lastName2 || undefined,
+                password: password || undefined,
+                email: email || undefined,
+                phone: phone || undefined,
+                role: role || undefined,
+                idFamily: idFamily ? Number(idFamily) : undefined
+            },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.status(200).json(resProcessor.concatStatus(200, user));
 })
 
 // CREAR NUEVO RECORD
 router.post('/', async (req, res) => {
+    const { username, name, lastName1, 
+        lastName2, password, email, phone, role } = req.body
 
-    const result = "";
+    if (!(username && name && lastName1 &&
+         password && email && phone && role)) {
+            return res.json(resProcessor.newMessage(400, "Faltan datos requeridos"));
+    }
+    
+    const valid = await validate(username, email, role, phone);
+    if (!valid.result) {
+        return res.json(resProcessor.newMessage(400, valid.message));
+    }
 
-/*     const result = await prisma.user.create({
-        data: {
-            name: name,
-            lastName1: lastName1,
-            lastName2: lastName2,
-            status: status,
-            idParent: Number(idParent),
-        },
-    }) */
-
-    await prisma.$disconnect();
-
-    res.status(200).json(result);
+    let createdUser;
+    try {
+        if (role === "USER") {
+            createdUser = await prisma.user.create({
+                data: {
+                username: username,
+                name: name,
+                lastName1: lastName1,
+                lastName2: lastName2 || undefined,
+                password: password,
+                email: email,
+                phone: phone,
+                role: role,
+                family: {
+                        create: {},
+                    },
+                },
+                include: {
+                    family: true,
+                },
+            });
+        } else {
+            createdUser = await prisma.user.create({
+                data: {
+                    username: username,
+                    name: name,
+                    lastName1: lastName1,
+                    lastName2: lastName2 || undefined,
+                    password: password,
+                    email: email,
+                    phone: phone,
+                    role: role,
+                },
+            });
+        }
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+    
+    res.status(200).json(resProcessor.concatStatus(200, createdUser));
 })
 
+async function validate(username: string, email: string,
+    role: string, phone: string) {
+    
+    let message = "";
+    if (username && !(await validator.isUnique("user", "username", username))) {
+        message = "El usuario debe ser unico";
+        return {result: false, message: message}
+    }
+    if (email && !validator.validateEmail(email)) {
+        message = "Formato de email invalido";
+        return {result: false, message: message}
+    }
+    if (email && !(await validator.isUnique("user", "email", email))) {
+        message = "El email ya esta en uso";
+        return {result: false, message: message}
+    }
+    if (role && !userRoles.includes(role)) {
+        message = "Rol invalido";
+        return {result: false, message: message} 
+    }
+    if (phone && !validator.validatePhone(phone)) {
+        message = "Formato de telefono invalido";
+        return {result: false, message: message}
+    }
+    return {result: true}
+}
 
 
 export default router;

@@ -1,80 +1,153 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client'
+import validator from '../utils/validatorUtils';
+import resProcessor from '../utils/responseProcessor';
+import errorHandler from '../utils/errorHandler';
 
 const router = Router();
 const prisma = new PrismaClient()
 
+function handleError(error: any) {
+    const object = "Tutor";
+    return errorHandler.checkError(object, error);
+}
+
 // LISTAR CON PAGINACION DE 10
 router.get('/', async (req, res) => {
-    const tutors = await prisma.tutor.findMany({
-        where: { deleted: false },
-        take: 10,
-    })
 
-    await prisma.$disconnect();
+    let tutors;
+    try {
+        tutors = await prisma.tutor.findMany({
+            where: { deleted: false },
+            take: 10,
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    res.json(tutors)
+    res.json(resProcessor.concatStatus(200, tutors));
 });
 
 // LISTAR MEDIANTE ID
 router.get('/:id', async (req, res) => {
     const { id } = req.params
-    const tutor = await prisma.tutor.findUnique({
-        where: { id: Number(id) },
-    })
 
-    await prisma.$disconnect();
+    let tutor;
+    try {
+        tutor = await prisma.tutor.findUnique({
+            where: { id: Number(id) },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    res.json(tutor)
+    res.json(resProcessor.concatStatus(200, tutor));
 })
 
 // ELIMINAR (LOGICO) MEDIANTE ID
 router.delete('/:id', async (req, res) => {
     const { id } = req.params
-    const tutor = await prisma.tutor.update({
-        where: { id: Number(id) },
-        data: { 
-            deleted: true,
-        }
-    })
 
-    await prisma.$disconnect();
+    let tutor;
+    try {
+        tutor = await prisma.tutor.update({
+            where: { id: Number(id) },
+            data: { 
+                deleted: true,
+            }
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    res.json(tutor)
+    res.json(resProcessor.concatStatus(200, tutor));
 })
 
 // ACTUALIZAR MEDIANTE ID
 router.put('/:id', async (req, res) => {
     const { id } = req.params
-    const tutor = await prisma.tutor.update({
-        where: { id: Number(id) },
-        data: { ...req.body },
-    })
+    const { name, occupation, phone, idStudent } = req.body
 
-    await prisma.$disconnect();
+    const valid = await validate(phone, idStudent);
+    if (!valid.result) {
+        return res.json(resProcessor.newMessage(400, valid.message));
+    }
+    
+    let tutor;
+    try {
+        tutor = await prisma.tutor.update({
+            where: { id: Number(id) },
+            data: {
+                name: name || undefined,
+                occupation: occupation || undefined,
+                phone: phone || undefined,
+                idStudent: idStudent ? Number(idStudent) : undefined,
+            },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    res.json(tutor)
+    res.json(resProcessor.concatStatus(200 ,tutor));
 })
 
 // CREAR NUEVO RECORD
 router.post('/', async (req, res) => {
-    const result = "";
+    const { name, occupation, phone, idStudent } = req.body
 
-/*     const result = await prisma.tutor.create({
-        data: {
-            name: name,
-            lastName1: lastName1,
-            lastName2: lastName2,
-            status: status,
-            idParent: Number(idParent),
-        },
-    }) */
+    if (!(name && phone && idStudent)) {
+        return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos'));
+    }
 
-    await prisma.$disconnect();
+    const valid = await validate(phone, idStudent);
+    if (!valid.result) {
+        return res.json(resProcessor.newMessage(400, valid.message));
+    }
 
-    res.status(200).json(result);
+    let result;
+    try {
+        result = await prisma.tutor.create({
+            data: {
+                name: name,
+                occupation: occupation || undefined,
+                phone: phone,
+                idStudent: Number(idStudent),
+            },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.status(200).json(resProcessor.concatStatus(200, result));
 })
 
-
+async function validate(phone: string, idStudent: string) {
+    
+    let message = "";
+    if (phone && !validator.validatePhone(phone)) {
+        message = "Formato de telefono invalido";
+        return {result: false, message: message}
+    }
+    if (idStudent && !validator.isNumeric(idStudent)) {
+        message = "Id de cuidad invalido: No numerico";
+        return {result: false, message: message}
+    }
+    return {result: true}
+}
 
 export default router;

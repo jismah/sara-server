@@ -23,7 +23,7 @@ model Student {
   //Relacion 1:N con Tutor
   tutors     Tutor[] //Persona autorizada (Tutor) para buscar el niño
 
-  //Relacion 1:1 con Contacto de emergia
+  //Relacion 1:1 con Contacto de emergencia
   emergencyContact EmergencyContact?
 
   medicalCondition String? //Alergia, intolerancia, condición o enfermedad 
@@ -72,6 +72,7 @@ model Parent {
   telephone    String?
   email        String    @unique
   occupation   String?
+
   //Relacion 1:N con Student
   children     Student[]
 
@@ -313,7 +314,7 @@ model Objectives {
 model Evaluation {
   id        Int      @id @default(autoincrement())
   date      DateTime
-  comentary String?
+  commment String?
 
   //Relacion 1:N con Objectives
   objectives Objectives[]
@@ -330,6 +331,8 @@ model Evaluation {
 model Staff {
   id            Int    @id @default(autoincrement())
   name          String
+  lastName1     String
+  lastName2     String?
   phone         String
   salary        Float
   paymentMethod String
@@ -378,8 +381,8 @@ model User {
 
   //Si el UserRole es USER, se vinculará a una familia
   //Relacion 1:1 con Family
-  idFamily Int    @unique
-  family   Family @relation(fields: [idFamily], references: [id])
+  idFamily Int?    @unique
+  family   Family? @relation(fields: [idFamily], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -395,12 +398,16 @@ model City {
 
   //Relacion 1:N con Student
   students Student[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
 }
 
 model Shift {
   id          Int      @id @default(autoincrement())
-  initialHour DateTime
-  finishHour  DateTime
+  initialHour String
+  finishHour  String
 
   //Relacion 1:N con Staff
   staff   Staff @relation(fields: [idStaff], references: [id])
@@ -509,6 +516,10 @@ model AcademicYear {
 
   //Relacion 1:N con Camp
   camps Camp[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
 }
 
 //Modelos relacionados a campamento:
@@ -529,18 +540,26 @@ model Camp {
 
   //Relacion N:M con Group
   groups GroupOnCamp[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
 }
 
 model Activity {
   id          Int      @id @default(autoincrement())
-  startTime   DateTime
-  endTime     DateTime
+  startTime   String
+  endTime     String
   day         DateTime
   description String
 
   //Relacion 1:N con Camp
   camp   Camp @relation(fields: [idCamp], references: [id])
   idCamp Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
 }
 
 // KEYS AUTH API 

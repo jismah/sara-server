@@ -38,6 +38,12 @@ import orderRouter from './routes/order';
 import groupOnCampRouter from './routes/GroupOnCamp';
 import paymentRouter from './routes/payment';
 import pediatricianRouter from './routes/pediatrician';
+import programsRouter from './routes/Program';
+import staffRouter from './routes/staff';
+import saleRouter from './routes/sale';
+import shiftsRouter from './routes/shift';
+import professorsForGroupRouter from './routes/professorsForGroup';
+import studentOnGroupRouter from './routes/studentOnGroup';
 
 const app = express()
 const prisma = new PrismaClient()
@@ -103,6 +109,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/weekdays', weekDaysRouter);
 app.use('/api/professors', professorsRouter);
 app.use('/api/products', productsRouter);
+app.use('/api/programs', programsRouter);
 
 app.use('/api/academicYears', academicYearsRouter);
 app.use('/api/activities', activitiesRouter);
@@ -122,6 +129,13 @@ app.use('/api/objetives', objetivesRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/payments', paymentRouter);
 app.use('/api/pediatricians', pediatricianRouter);
+
+app.use('/api/staff', staffRouter);
+app.use('/api/sales', saleRouter);
+app.use('/api/shifts', shiftsRouter);
+app.use('/api/professorsForGroup', professorsForGroupRouter);
+app.use('/api/studentOnGroup', studentOnGroupRouter);
+
 
 app.listen(3000, () =>
     console.log('SARA REST API server ready at: http://localhost:3000'),

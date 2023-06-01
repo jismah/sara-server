@@ -1,79 +1,152 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client'
+import validator from '../utils/validatorUtils';
+import resProcessor from '../utils/responseProcessor';
+import errorHandler from '../utils/errorHandler';
 
 const router = Router();
 const prisma = new PrismaClient()
 
+function handleError(error: any) {
+    const object = "Product";
+    return errorHandler.checkError(object, error);
+}
+
 // LISTAR CON PAGINACION DE 10
 router.get('/', async (req, res) => {
-    const products = await prisma.product.findMany({
-        where: { deleted: false },
-    })
+    let products;
+    try {
+        products = await prisma.product.findMany({
+            where: { deleted: false },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    await prisma.$disconnect();
-
-    res.json(products)
+    res.json(resProcessor.concatStatus(200, products));
 });
 
 // LISTAR MEDIANTE ID
 router.get('/:id', async (req, res) => {
     const { id } = req.params
-    const product = await prisma.product.findUnique({
-        where: { id: Number(id) },
-    })
 
-    await prisma.$disconnect();
+    let product;
+    try {
+        product = await prisma.product.findUnique({
+            where: { id: Number(id) },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    res.json(product)
+    res.json(resProcessor.concatStatus(200, product));
 })
 
 // ELIMINAR (LOGICO) MEDIANTE ID
 router.delete('/:id', async (req, res) => {
     const { id } = req.params
-    const product = await prisma.product.update({
-        where: { id: Number(id) },
-        data: { 
-            deleted: true,
-        }
-    })
 
-    await prisma.$disconnect();
+    let product;
+    try {
+        product = await prisma.product.update({
+            where: { id: Number(id) },
+            data: { 
+                deleted: true,
+            }
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    res.json(product)
+    res.json(resProcessor.concatStatus(200, product));
 })
 
 // ACTUALIZAR MEDIANTE ID
 router.put('/:id', async (req, res) => {
     const { id } = req.params
-    const product = await prisma.product.update({
-        where: { id: Number(id) },
-        data: { ...req.body },
-    })
+    const {name, price, cost, available, status} = req.body
 
-    await prisma.$disconnect();
+    let product;
+    try {
+        product = await prisma.product.update({
+            where: { id: Number(id) },
+            data: {
+                name: name || undefined,
+                price: price ? parseFloat(price) : undefined,
+                cost: cost ? parseFloat(cost) : undefined,
+                status: status || undefined,
+                available: available ? validator.toBool(available) : undefined,
+            },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
 
-    res.json(product)
+    res.json(resProcessor.concatStatus(200, product));
 })
 
 // CREAR NUEVO RECORD
 router.post('/', async (req, res) => {
-    const result = "";
+    const {name, price, cost, available, status} = req.body
 
-/*     const result = await prisma.product.create({
-        data: {
-            name: name,
-            lastName1: lastName1,
-            lastName2: lastName2,
-            status: status,
-            idParent: Number(idParent),
-        },
-    }) */
+    if (!(name && price && cost && available && status)) {
+        return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos'));
+    }
 
-    await prisma.$disconnect();
+    const valid = await validate(price, cost, available);
+    if (!valid.result) {
+        return res.json(resProcessor.newMessage(400, valid.message));
+    }
 
-    res.status(200).json(result);
+    let result;
+    try {
+        result = await prisma.product.create({
+            data: {
+                name: name,
+                price: parseFloat(price),
+                cost: parseFloat(cost),
+                status: status,
+                available: validator.toBool(available),
+            },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.status(200).json(resProcessor.concatStatus(200, result));
 })
 
-
+async function validate(price: string, cost: string, available: string) {
+    
+    let message = "";
+    if (price && !validator.isNumeric(price)) {
+        message = "Precio invalido: No numerico";
+        return {result: false, message: message}
+    }
+    if (cost && !validator.isNumeric(cost)) {
+        message = "Costo invalido: No numerico";
+        return {result: false, message: message}
+    }
+    if (available && !validator.isBoolean(available)) {
+        message = "Status invalido: No booleano"
+        return {result: false, message: message}
+    }
+    return {result: true}
+}
 
 export default router;
