@@ -1,10 +1,6 @@
 /*
     BACKEND SAYA PROJECT
 
-    TODO:
-        °Arreglar Endpoints de crear, modificar y eliminar
-
-
     COMMANDS:
         npx ts-node src/index.ts
         npx prisma generate
@@ -46,6 +42,7 @@ import professorsForGroupRouter from './routes/professorsForGroup';
 import studentOnGroupRouter from './routes/studentOnGroup';
 
 const app = express()
+const PORT = 3000
 const prisma = new PrismaClient()
 
 const corsOptions = {
@@ -137,6 +134,6 @@ app.use('/api/professorsForGroup', professorsForGroupRouter);
 app.use('/api/studentOnGroup', studentOnGroupRouter);
 
 
-app.listen(3000, () =>
-    console.log('SARA REST API server ready at: http://localhost:3000'),
+app.listen(PORT, () =>
+    console.log(`SARA REST API server ready at: http://localhost:${PORT}`),
 )
