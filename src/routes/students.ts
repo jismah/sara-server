@@ -126,9 +126,7 @@ router.put('/:id', async (req, res) => {
 
 // CREAR UN NUEVO ESTUDIANTE
 router.post('/', async (req, res) => {
-    const { name, lastName1, lastName2, status, commentary, dateBirth,
-        housePhone, address, medicalCondition, idPediatrician, idFamily,
-        progressDesired, allowedPictures, idCity, idParent, idProgram } = req.body
+    const { name, lastName1, lastName2, status, commentary, dateBirth, housePhone, address, medicalCondition, idPediatrician, idFamily, progressDesired, allowedPictures, idCity, idParent, idProgram } = req.body
     
     if (!(name && lastName1 && status && dateBirth && housePhone && address
         && idPediatrician && idFamily && idCity && idParent && idProgram)) {

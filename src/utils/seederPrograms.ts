@@ -5,25 +5,17 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker/locale/es';
 
-const N_FAMILY = 20;
 const COUNT = 20;
-
-const min = 10000000000; // Minimum 11-digit number (10 zeros)
-const max = 99999999999; // Maximum 11-digit number (all nines)
 
 const generateFakeData = () => {
     const fakeData = [];
 
     for (let i = 0; i < COUNT; i++) {
         const fakeItem = {
-          identityCard: (Math.floor(Math.random() * (max - min + 1)) + min).toString(),
-          name: faker.name.firstName(),
-          lastName1: faker.name.lastName(),
-          lastName2: faker.name.lastName(),
-          idFamily: Math.floor(Math.random() * N_FAMILY) + 1,
-          telephone: faker.phone.number('(###) ###-###'),
-          email: faker.internet.email(),
-          occupation: faker.name.jobTitle(),
+          description: faker.lorem.words(3),
+          maxStudents: Math.floor(Math.random() * 10) + 1,
+          inscription: getRandomFloat(1000, 10000),
+          monthlyAmount: getRandomFloat(500, 5000)
         };
         fakeData.push(fakeItem);
     }
@@ -41,8 +33,8 @@ const insertFakeData = async () => {
     const fakeData = generateFakeData();
   
     try {
-      const result = await prisma.parent.createMany({ data: fakeData });
-      console.log(`Se insertaron ${result.count} registros en la tabla "Parent"`);
+      const result = await prisma.program.createMany({ data: fakeData });
+      console.log(`Se insertaron ${result.count} registros en la tabla "Program"`);
     } catch (error) {
       console.error('Error al insertar datos falsos:', error);
     } finally {
