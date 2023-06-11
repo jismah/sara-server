@@ -17,11 +17,20 @@ const userRoles = ['SUPERADMIN', 'ADMIN', 'USER',
 
 // LISTAR CON PAGINACION DE 10
 router.get('/', async (req, res) => {
+    const { page } = req.query;
+
+    let page_int = page && validator.isNumeric(page.toString()) ? Number(page) : 1;
+
+    const pageSize = 10;
+    const offset = (page_int - 1) * pageSize;
+
     let users;
     try {
         users = await prisma.user.findMany({
             where: { deleted: false },
-        })
+            take: pageSize,
+            skip: offset,
+        });
     } catch (error: any) {
         return res.json(handleError(error));
         

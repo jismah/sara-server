@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client'
+import validator from '../utils/validatorUtils';
 import resProcessor from '../utils/responseProcessor';
 import errorHandler from '../utils/errorHandler';
 
@@ -13,14 +14,20 @@ function handleError(error: any) {
 
 // LISTAR CON PAGINACION DE 10
 router.get('/', async (req, res) => {
+    const { page } = req.query;
+
+    let page_int = page && validator.isNumeric(page.toString()) ? Number(page) : 1;
+
+    const pageSize = 10;
+    const offset = (page_int - 1) * pageSize;
+
     let family;
     try {
         family = await prisma.family.findMany({
-            where: {
-                deleted: false
-            },
-            take: 10,
-        })
+            where: { deleted: false },
+            take: pageSize,
+            skip: offset,
+        });
     } catch (error: any) {
         return res.json(handleError(error));
         
