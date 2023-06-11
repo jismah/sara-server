@@ -88,7 +88,7 @@ router.put('/:id', async (req, res) => {
          email, phone, role, idFamily } = req.body;
     const { id } = req.params;
 
-    const valid = await validate(username, email, role, phone);
+    const valid = await validate(username, email, role, phone, idFamily);
     if (!valid.result) {
         return res.json(resProcessor.newMessage(400, valid.message));
     }
@@ -129,7 +129,7 @@ router.post('/', async (req, res) => {
             return res.json(resProcessor.newMessage(400, "Faltan datos requeridos"));
     }
     
-    const valid = await validate(username, email, role, phone);
+    const valid = await validate(username, email, role, phone, undefined);
     if (!valid.result) {
         return res.json(resProcessor.newMessage(400, valid.message));
     }
@@ -179,8 +179,7 @@ router.post('/', async (req, res) => {
     res.status(200).json(resProcessor.concatStatus(200, createdUser));
 })
 
-async function validate(username: string, email: string,
-    role: string, phone: string) {
+async function validate(username: string, email: string, role: string, phone: string, idFamily: string | undefined) {
     
     let message = "";
     if (username && !(await validator.isUnique("user", "username", username))) {
@@ -201,6 +200,10 @@ async function validate(username: string, email: string,
     }
     if (phone && !validator.validatePhone(phone)) {
         message = "Formato de telefono invalido";
+        return {result: false, message: message}
+    }
+    if (idFamily && !validator.isNumeric(idFamily)) {
+        message = "Id de la familia invalido: No numerico";
         return {result: false, message: message}
     }
     return {result: true}
