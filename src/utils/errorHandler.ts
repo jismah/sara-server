@@ -1,4 +1,4 @@
-import { PrismaClientValidationError } from '@prisma/client/runtime/library';
+import { PrismaClientInitializationError, PrismaClientValidationError } from '@prisma/client/runtime/library';
 import resProcessor from '../utils/responseProcessor';
 
 let instance: ErrorHandler;
@@ -24,7 +24,14 @@ class ErrorHandler {
         if (error instanceof PrismaClientValidationError) {
             return this.badDataError(object);
         }
+        if (error instanceof PrismaClientInitializationError) {
+            return this.cantConnectError(object);
+        }
         return resProcessor.newMessage(500, "Ocurrió un error en una operacion de: [" + object + "]");
+    }
+
+    cantConnectError(object: string) {
+        return resProcessor.newMessage(500, "[" + object + "] " + "Ocurrio un error al conectarse con la base de datos. Verifique su conexión.");
     }
 
     badIdError(object: string) {

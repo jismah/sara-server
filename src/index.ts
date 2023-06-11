@@ -41,6 +41,8 @@ import shiftsRouter from './routes/shift';
 import professorsForGroupRouter from './routes/professorsForGroup';
 import studentOnGroupRouter from './routes/studentOnGroup';
 
+import errorHandler from './utils/errorHandler';
+
 const app = express()
 const PORT = 3000
 const prisma = new PrismaClient()
@@ -67,13 +69,19 @@ function checkApiKey(req: Request, res: Response, next: NextFunction): void {
 }
 
 async function findAuthKeyByKey(key: string): Promise<boolean> {
-    const foundKey = await prisma.authKey.findUnique({
-        where: {
-            key,
-        },
-    });
-
-    await prisma.$disconnect();
+    let foundKey;
+    try {
+        foundKey = await prisma.authKey.findUnique({
+            where: {
+                key,
+            },
+        });
+    } catch (error: any) {
+        errorHandler.checkError("AuthKey", error);
+        return false;
+    } finally {
+        await prisma.$disconnect();
+    }
 
     return Boolean(foundKey);
 }
@@ -83,7 +91,6 @@ function logIPAddress(req: Request, res: Response, next: NextFunction) {
     console.log(`La dirección IP del cliente es ${ipAddress}`);
     next();
 }
-
 
 app.get('/', async (req, res) => {
     res.send('Welcome to RestAPI - Sara Project')
