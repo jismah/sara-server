@@ -89,7 +89,7 @@ router.put('/:id', async (req, res) => {
         evaluation = await prisma.evaluation.update({
             where: { id: Number(id) },
             data: {
-                date: date ? new Date(date) : undefined,
+                date: date || undefined,
                 commment: commment || undefined,
                 idStudent: idStudent ? Number(idStudent) : undefined,
             },
@@ -121,7 +121,7 @@ router.post('/', async (req, res) => {
     try {
         result = await prisma.evaluation.create({
             data: {
-                date: new Date(date),
+                date: date,
                 commment: commment || undefined,
                 idStudent: Number(idStudent),
             },

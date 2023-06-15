@@ -94,7 +94,7 @@ router.put('/:id', async (req, res) => {
         sale = await prisma.sale.update({
             where: { id: Number(id) },
             data: {
-                date: date ? new Date(date) : undefined,
+                date: date || undefined,
                 total: total ? parseFloat(total) : undefined,
             },
         })
@@ -125,7 +125,7 @@ router.post('/', async (req, res) => {
     try {
         result = await prisma.sale.create({
             data: {
-                date: new Date(date),
+                date: date,
                 total: parseFloat(total),
             },
         })

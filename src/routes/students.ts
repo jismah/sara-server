@@ -109,7 +109,7 @@ router.put('/:id', async (req, res) => {
                 lastName2: lastName2 || undefined,
                 status: status || undefined,
                 commentary: commentary || undefined,
-                dateBirth: dateBirth ? new Date(dateBirth) : undefined,
+                dateBirth: dateBirth || undefined,
                 housePhone: housePhone || undefined,
                 address: address || undefined,
                 medicalCondition: medicalCondition || undefined,
@@ -134,15 +134,13 @@ router.put('/:id', async (req, res) => {
 
 // CREAR UN NUEVO ESTUDIANTE
 router.post('/', async (req, res) => {
-    const { name, lastName1, lastName2, status, commentary, dateBirth, housePhone, address, medicalCondition, idPediatrician, idFamily, progressDesired, allowedPictures, idCity, idParent, idProgram } = req.body
+    const { name, lastName1, lastName2, status, commentary, dateBirth, housePhone, address, medicalCondition, idPediatrician, idFamily,progressDesired, allowedPictures, idCity, idParent, idProgram } = req.body
     
-    if (!(name && lastName1 && status && dateBirth && housePhone && address
-        && idPediatrician && idFamily && idCity && idParent && idProgram)) {
+    if (!(name && lastName1 && status && dateBirth && housePhone && address && idPediatrician && idFamily && idCity && idParent && idProgram)) {
         return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos'));
     }
 
-    const valid = await validate(status, dateBirth, housePhone,
-        idPediatrician, idFamily, allowedPictures, idCity, idParent, idProgram);
+    const valid = await validate(status, dateBirth, housePhone, idPediatrician, idFamily, allowedPictures, idCity, idParent, idProgram);
     if (!valid.result) {
         return res.json(resProcessor.newMessage(400, valid.message));
     }
@@ -156,7 +154,7 @@ router.post('/', async (req, res) => {
                 lastName2: lastName2 || undefined,
                 status: status,
                 commentary: commentary || undefined,
-                dateBirth: new Date(dateBirth),
+                dateBirth: dateBirth,
                 housePhone: housePhone,
                 address: address,
                 medicalCondition: medicalCondition || undefined,
@@ -197,9 +195,7 @@ router.get('/studentsWithParents', async (req, res) => {
     res.status(200).json(resProcessor.concatStatus(200, studentsWithParents));
 })
 
-async function validate(status: string, dateBirth: string, housePhone: string,
-    idPediatrician: string, idFamily: string, allowedPictures: string,
-    idCity: string, idParent: string, idProgram: string) {
+async function validate(status: string, dateBirth: string, housePhone: string, idPediatrician: string, idFamily: string, allowedPictures: string, idCity: string, idParent: string, idProgram: string) {
     
     let message = "";
     if (status && !StatusStudent.includes(status)) {

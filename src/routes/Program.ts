@@ -143,8 +143,7 @@ router.post('/', async (req, res) => {
     res.status(200).json(resProcessor.concatStatus(200, result));
 })
 
-async function validate(maxStudents: string,
-     inscription: string, monthlyAmount: string) {
+async function validate(maxStudents: string, inscription: string, monthlyAmount: string) {
     
     let message = "";
     if (maxStudents && !validator.isNumeric(maxStudents)) {

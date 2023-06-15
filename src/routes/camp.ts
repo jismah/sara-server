@@ -78,10 +78,10 @@ router.delete('/:id', async (req, res) => {
 
 // ACTUALIZAR MEDIANTE ID
 router.put('/:id', async (req, res) => {
-    const { name, description, idAcademicYear } = req.body
+    const { name, description, entryFee, capacity, idAcademicYear } = req.body
     const { id } = req.params
 
-    const valid = await validate(idAcademicYear);
+    const valid = await validate(idAcademicYear, entryFee, capacity);
     if (!valid.result) {
         return res.json(resProcessor.newMessage(400, valid.message));
     }
@@ -94,6 +94,8 @@ router.put('/:id', async (req, res) => {
                 name: name || undefined,
                 description: description || undefined,
                 idAcademicYear: idAcademicYear ? Number(idAcademicYear) : undefined,
+                entryFee: entryFee ? parseFloat(entryFee) : undefined,
+                capacity: capacity ? Number(capacity) : undefined,
             },
         })
     } catch (error: any) {
@@ -110,13 +112,13 @@ router.put('/:id', async (req, res) => {
 
 // CREAR NUEVO RECORD
 router.post('/', async (req, res) => {
-    const { name, description, idAcademicYear } = req.body
+    const { name, description, entryFee, capacity, idAcademicYear } = req.body
 
-    if (!(name && description && idAcademicYear)) {
+    if (!(name && description && entryFee && idAcademicYear)) {
         return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos' ));
     }
 
-    const valid = await validate(idAcademicYear);
+    const valid = await validate(idAcademicYear, entryFee, capacity);
     if (!valid.result) {
         return res.json(resProcessor.newMessage(400, valid.message));
     }
@@ -128,6 +130,8 @@ router.post('/', async (req, res) => {
                 name: name,
                 description: description,
                 idAcademicYear: Number(idAcademicYear),
+                entryFee: parseFloat(entryFee),
+                capacity: capacity ? Number(capacity) : undefined,
             },
         })
     } catch (error: any) {
@@ -142,11 +146,19 @@ router.post('/', async (req, res) => {
     res.status(200).json(resProcessor.concatStatus(200, result));
 })
 
-async function validate(idAcademicYear: string) {
+async function validate(idAcademicYear: string, entryFee: string, capacity: string) {
     
     let message = "";
     if (idAcademicYear && !validator.isNumeric(idAcademicYear)) {
         message = "Id del año escolar invalido: No numerico";
+        return {result: false, message: message}
+    }
+    if (entryFee && !validator.isNumeric(entryFee)) {
+        message = "Costo de reserva invalido: No numerico";
+        return {result: false, message: message}
+    }
+    if (capacity && !validator.isNumeric(capacity)) {
+        message = "Capacidad invalida: No numerica";
         return {result: false, message: message}
     }
     return {result: true}

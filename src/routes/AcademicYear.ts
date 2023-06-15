@@ -89,8 +89,8 @@ router.put('/:id', async (req, res) => {
         academicYear = await prisma.academicYear.update({
             where: { id: Number(id) },
             data: {
-                startTime: startTime ? new Date(startTime) : undefined,
-                endTime: endTime ? new Date(endTime): undefined,
+                startTime: startTime || undefined,
+                endTime: endTime || undefined,
             },
         })
     } catch (error: any) {
@@ -120,8 +120,8 @@ router.post('/', async (req, res) => {
     try {
         result = await prisma.academicYear.create({
             data: {
-                startTime: new Date(startTime),
-                endTime: new Date(endTime),
+                startTime: startTime,
+                endTime: endTime,
             },
         })
     } catch (error: any) {

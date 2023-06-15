@@ -17,7 +17,7 @@ model Student {
   lastName2  String?
   status     StatusStudent
   commentary String? //Comentario opcional sobre el estudiante posterior a su entrevista
-  dateBirth  DateTime
+  dateBirth  String
   housePhone String
   address    String
   //Relacion 1:N con Tutor
@@ -148,7 +148,7 @@ model Pediatrician {
 
 model Payment {
   id        Int      @id @default(autoincrement())
-  date      DateTime
+  date      String
   amount    Float
   //Relacion 1:N con Parent
   parent    Parent   @relation(fields: [idParent], references: [id])
@@ -183,7 +183,7 @@ model Product {
 
 model Invoice {
   id     Int      @id @default(autoincrement())
-  date   DateTime
+  date   String
   amount Float
   status String
 
@@ -209,7 +209,7 @@ model Invoice {
 
 model Sale {
   id    Int      @id @default(autoincrement())
-  date  DateTime
+  date  String
   total Float
 
   //Relacion 1:1 con Invoice
@@ -243,7 +243,7 @@ model DetailSale {
 
 model Order {
   id     Int      @id @default(autoincrement())
-  date   DateTime
+  date   String
   total  Float
   status Boolean
 
@@ -313,7 +313,7 @@ model Objectives {
 
 model Evaluation {
   id        Int      @id @default(autoincrement())
-  date      DateTime
+  date      String
   commment String?
 
   //Relacion 1:N con Objectives
@@ -508,8 +508,8 @@ model GroupOnCamp {
 
 model AcademicYear {
   id        Int      @id @default(autoincrement())
-  startTime DateTime
-  endTime   DateTime
+  startTime String
+  endTime   String
 
   //Relacion 1:N con Shift
   shifts Shift[]
@@ -526,6 +526,8 @@ model AcademicYear {
 model Camp {
   id          Int    @id @default(autoincrement())
   name        String //Nombre campamento
+  entryFee    Float
+  capacity    Int?
   description String
 
   //Relacion 1:N con AcademicYear
@@ -550,7 +552,7 @@ model Activity {
   id          Int      @id @default(autoincrement())
   startTime   String
   endTime     String
-  day         DateTime
+  day         String
   description String
 
   //Relacion 1:N con Camp
@@ -567,6 +569,7 @@ model AuthKey {
   id        Int      @id @default(autoincrement())
   key       String   @unique
   owner     String?
+  
   createdAt DateTime @default(now())
   deleted   Boolean  @default(false)
 }

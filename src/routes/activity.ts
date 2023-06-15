@@ -93,7 +93,7 @@ router.put('/:id', async (req, res) => {
             data: {
                 startTime: startTime || undefined,
                 endTime: endTime || undefined,
-                day: day ? new Date(day) : undefined,
+                day: day || undefined,
                 description: description || undefined,
                 idCamp: idCamp ? Number(idCamp) : undefined,
             },
@@ -127,7 +127,7 @@ router.post('/', async (req, res) => {
             data: {
                 startTime: startTime,
                 endTime: endTime,
-                day: new Date(day),
+                day: day,
                 description: description,
                 idCamp: Number(idCamp),
             },

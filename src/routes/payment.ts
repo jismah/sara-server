@@ -94,7 +94,7 @@ router.put('/:id', async (req, res) => {
         payment = await prisma.payment.update({
             where: { id: Number(id) },
             data: {
-                date: date ? new Date(date) : undefined,
+                date: date || undefined,
                 amount: amount ? parseFloat(amount) : undefined,
                 idInvoice: idInvoice ? Number(idInvoice) : undefined,
                 idParent: idParent ? Number(idParent) : undefined,
@@ -127,7 +127,7 @@ router.post('/', async (req, res) => {
     try {
         result = await prisma.payment.create({
             data: {
-                date: new Date(date),
+                date: date,
                 amount: parseFloat(amount),
                 idInvoice: Number(idInvoice),
                 idParent: Number(idParent),
