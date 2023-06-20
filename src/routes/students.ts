@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import validator from '../utils/validatorUtils';
 import resProcessor from '../utils/responseProcessor';
 import errorHandler from '../utils/errorHandler';
+import routerHandler from '../utils/routerHandlers';
 
 const router = Router();
 const prisma = new PrismaClient()
@@ -22,27 +23,9 @@ const StatusStudent = [
 // LISTAR ESTUDIANTES CON PAGINACION DE 10
 router.get('/', async (req, res) => {
     const { page } = req.query;
-
-    let page_int = page && validator.isNumeric(page.toString()) ? Number(page) : 1;
-
     const pageSize = 10;
-    const offset = (page_int - 1) * pageSize;
 
-    let students;
-    try {
-        students = await prisma.student.findMany({
-            where: { deleted: false },
-            take: pageSize,
-            skip: offset,
-        });
-    } catch (error: any) {
-        return res.json(handleError(error));
-        
-    } finally {
-        await prisma.$disconnect();
-    }
-
-    res.status(200).json(resProcessor.concatStatus(200, students));
+    await routerHandler.getData("student", pageSize, page, res);
 });
 
 // LISTAR UN ESTUDIANTE MEDIANTE ID

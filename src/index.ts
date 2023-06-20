@@ -40,6 +40,7 @@ import saleRouter from './routes/sale';
 import shiftsRouter from './routes/shift';
 import professorsForGroupRouter from './routes/professorsForGroup';
 import studentOnGroupRouter from './routes/studentOnGroup';
+import groupRouter from './routes/group';
 
 import errorHandler from './utils/errorHandler';
 
@@ -139,6 +140,7 @@ app.use('/api/sales', saleRouter);
 app.use('/api/shifts', shiftsRouter);
 app.use('/api/professorsForGroup', professorsForGroupRouter);
 app.use('/api/studentOnGroup', studentOnGroupRouter);
+app.use('/api/groups', groupRouter);
 
 
 app.listen(PORT, () =>

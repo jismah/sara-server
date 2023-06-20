@@ -13,8 +13,12 @@ class responseProcessor {
         return { status: this.getStatus(code), code: code, response: {message: message}}
     }
 
-    concatStatus(code: Number, json: any) {
-        let res = {code: code, status: this.getStatus(code), response: json}
+    concatStatus(code: Number, json: any, total?: Number) {
+        if (!total) {
+            total = 0
+        }
+
+        let res = {code: code, status: this.getStatus(code), total: total, response: json}
         return res;
     }
 

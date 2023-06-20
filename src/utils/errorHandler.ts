@@ -39,12 +39,16 @@ class ErrorHandler {
     }
 
     badDataError(object: string) {
-        return resProcessor.newMessage(400, "[" + object + "] " + "PrismaClientValidationError: Se recibio data erronea. Verifique el id del objeto.");
+        return resProcessor.newMessage(400, "[" + object + "] " + "PrismaClientValidationError: Se recibio data erronea. Verifique el id del objeto o la data insertada.");
     }
 
     recordNotFound(object: string) {
         return resProcessor.newMessage(500, "[" + object + "] " + "Una operación falló porque depende de uno o más registros que se requirieron pero no se encontraron.");
-    }  
+    }
+    
+    modelNotFound(object: string) {
+        return resProcessor.newMessage(500, "El modelo [" + object + "] no fue encontrado o no existe.");
+    }
 }
 
 let errorHandler = new ErrorHandler();

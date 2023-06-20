@@ -3,48 +3,31 @@ import { PrismaClient } from '@prisma/client'
 import validator from '../utils/validatorUtils';
 import resProcessor from '../utils/responseProcessor';
 import errorHandler from '../utils/errorHandler';
+import routerHandler from '../utils/routerHandlers';
 
 const router = Router();
 const prisma = new PrismaClient()
 
 function handleError(error: any) {
-    const object = "ProfesorsForGroup";
+    const object = "ProfessorsForGroup";
     return errorHandler.checkError(object, error);
 }
 
 // LISTAR CON PAGINACION DE 10
 router.get('/', async (req, res) => {
     const { page } = req.query;
-
-    let page_int = page && validator.isNumeric(page.toString()) ? Number(page) : 1;
-
     const pageSize = 10;
-    const offset = (page_int - 1) * pageSize;
 
-    let profesorsForGroups;
-    try {
-        profesorsForGroups = await prisma.profesorsForGroup.findMany({
-            where: { deleted: false },
-            take: pageSize,
-            skip: offset,
-        });
-    } catch (error: any) {
-        return res.json(handleError(error));
-        
-    } finally {
-        await prisma.$disconnect();
-    }
-
-    res.json(resProcessor.concatStatus(200, profesorsForGroups));
+    await routerHandler.getData("professorsForGroup", pageSize, page, res);
 });
 
 // LISTAR MEDIANTE ID
 router.get('/:idProfessor/:idGroup', async (req, res) => {
     const { idProfessor, idGroup } = req.params
 
-    let profesorsForGroup;
+    let professorsForGroup;
     try {
-        profesorsForGroup = await prisma.profesorsForGroup.findUnique({
+        professorsForGroup = await prisma.professorsForGroup.findUnique({
             where: {
                 idProfessor_idGroup: {
                     idProfessor: Number(idProfessor),
@@ -59,16 +42,16 @@ router.get('/:idProfessor/:idGroup', async (req, res) => {
         await prisma.$disconnect();
     }
 
-    res.json(resProcessor.concatStatus(200, profesorsForGroup));
+    res.json(resProcessor.concatStatus(200, professorsForGroup));
 })
 
 // ELIMINAR (LOGICO) MEDIANTE ID
 router.delete('/:idProfessor/:idGroup', async (req, res) => {
     const { idProfessor, idGroup } = req.params
 
-    let profesorsForGroup;
+    let professorsForGroup;
     try {
-        profesorsForGroup = await prisma.profesorsForGroup.update({
+        professorsForGroup = await prisma.professorsForGroup.update({
             where: {
                 idProfessor_idGroup: {
                     idProfessor: Number(idProfessor),
@@ -86,7 +69,7 @@ router.delete('/:idProfessor/:idGroup', async (req, res) => {
         await prisma.$disconnect();
     }
 
-    res.json(resProcessor.concatStatus(200, profesorsForGroup));
+    res.json(resProcessor.concatStatus(200, professorsForGroup));
 })
 
 // ACTUALIZAR MEDIANTE ID
@@ -103,9 +86,9 @@ router.put('/:idProfessor/:idGroup', async (req, res) => {
         return res.json(resProcessor.newMessage(400, valid.message));
     }
 
-    let profesorsForGroup;
+    let professorsForGroup;
     try {
-        profesorsForGroup = await prisma.profesorsForGroup.update({
+        professorsForGroup = await prisma.professorsForGroup.update({
             where: {
                 idProfessor_idGroup: {
                   idProfessor: Number(idProfessor),
@@ -123,7 +106,7 @@ router.put('/:idProfessor/:idGroup', async (req, res) => {
         await prisma.$disconnect();
     }
 
-    res.json(resProcessor.concatStatus(200, profesorsForGroup));
+    res.json(resProcessor.concatStatus(200, professorsForGroup));
 })
 
 // CREAR NUEVO RECORD
@@ -141,7 +124,7 @@ router.post('/', async (req, res) => {
 
     let result;
     try {
-        result = await prisma.profesorsForGroup.create({
+        result = await prisma.professorsForGroup.create({
             data: {
                 idProfessor: Number(idProfessor),
                 idGroup: Number(idGroup),

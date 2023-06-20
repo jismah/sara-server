@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import validator from '../utils/validatorUtils';
 import resProcessor from '../utils/responseProcessor';
 import errorHandler from '../utils/errorHandler';
+import routerHandler from '../utils/routerHandlers';
 
 const router = Router();
 const prisma = new PrismaClient()
@@ -15,27 +16,9 @@ function handleError(error: any) {
 // LISTAR CON PAGINACION DE 10
 router.get('/', async (req, res) => {
     const { page } = req.query;
-
-    let page_int = page && validator.isNumeric(page.toString()) ? Number(page) : 1;
-
     const pageSize = 10;
-    const offset = (page_int - 1) * pageSize;
 
-    let orders;
-    try {
-        orders = await prisma.order.findMany({
-            where: { deleted: false },
-            take: pageSize,
-            skip: offset,
-        });
-    } catch (error: any) {
-        return res.json(handleError(error));
-        
-    } finally {
-        await prisma.$disconnect();
-    }
-
-    res.json(resProcessor.concatStatus(200, orders));
+    await routerHandler.getData("order", pageSize, page, res);
 });
 
 // LISTAR MEDIANTE ID

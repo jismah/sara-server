@@ -361,7 +361,7 @@ model Professor {
   idStaff Int   @unique
   staff   Staff @relation(fields: [idStaff], references: [id])
 
-  groups ProfesorsForGroup[]
+  groups ProfessorsForGroup[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -442,7 +442,7 @@ model Group {
   maxStudents Int
 
   //Relacion N:M con Professor
-  professor ProfesorsForGroup[]
+  professor ProfessorsForGroup[]
 
   //Relacion 1:N con Shift
   shift   Shift @relation(fields: [idShift], references: [id])
@@ -460,7 +460,7 @@ model Group {
 }
 
 //Relacion N:M de Professor con Group
-model ProfesorsForGroup {
+model ProfessorsForGroup {
   idProfessor Int
   professor   Professor @relation(fields: [idProfessor], references: [id])
   idGroup     Int

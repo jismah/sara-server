@@ -13,29 +13,12 @@ function handleError(error: any) {
 }
 
 // LISTAR CON PAGINACION DE 10
+import routerHandler from '../utils/routerHandlers';
 router.get('/', async (req, res) => {
     const { page } = req.query;
-
-    let page_int = page && validator.isNumeric(page.toString()) ? Number(page) : 1;
-
     const pageSize = 10;
-    const offset = (page_int - 1) * pageSize;
 
-    let professors;
-    try {
-        professors = await prisma.professor.findMany({
-            where: { deleted: false },
-            take: pageSize,
-            skip: offset,
-        });
-    } catch (error: any) {
-        return res.json(handleError(error));
-        
-    } finally {
-        await prisma.$disconnect();
-    }
-
-    res.json(resProcessor.concatStatus(200, professors));
+    await routerHandler.getData("professor", pageSize, page, res);
 });
 
 // LISTAR MEDIANTE ID
