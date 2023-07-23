@@ -1,9 +1,19 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import validator from '../utils/validatorUtils';
 import resProcessor from '../utils/responseProcessor';
-import errorHandler from '../utils/errorHandler';
+import errorHandler from './errorHandler';
+
+let instance: RouterHandler;
 
 class RouterHandler {
+    constructor() {
+        if (instance) {
+            throw new Error("New instance of routerHandler cannot be created");
+        }
+        
+        instance = this;
+    } 
+
     prisma = new PrismaClient();
 
     models: Record<string, any> = {

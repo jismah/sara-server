@@ -64,17 +64,17 @@ model Student {
 }
 
 model Parent {
-  id           Int       @id @default(autoincrement())
-  identityCard String    @unique
+  id           Int     @id @default(autoincrement())
+  identityCard String  @unique
   name         String
   lastName1    String
   lastName2    String?
   telephone    String?
-  email        String    @unique
+  email        String  @unique
   occupation   String?
 
   //Relacion 1:N con Student
-  children     Student[]
+  children Student[]
 
   //Relacion 1:N con Payment
   payments Payment[]
@@ -147,14 +147,14 @@ model Pediatrician {
 }
 
 model Payment {
-  id        Int      @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   date      String
   amount    Float
   //Relacion 1:N con Parent
-  parent    Parent   @relation(fields: [idParent], references: [id])
+  parent    Parent  @relation(fields: [idParent], references: [id])
   idParent  Int
   //Relacion 1:N con Invoice
-  invoice   Invoice  @relation(fields: [idInvoice], references: [id])
+  invoice   Invoice @relation(fields: [idInvoice], references: [id])
   idInvoice Int
 
   createdAt DateTime @default(now())
@@ -182,7 +182,7 @@ model Product {
 }
 
 model Invoice {
-  id     Int      @id @default(autoincrement())
+  id     Int    @id @default(autoincrement())
   date   String
   amount Float
   status String
@@ -208,7 +208,7 @@ model Invoice {
 }
 
 model Sale {
-  id    Int      @id @default(autoincrement())
+  id    Int    @id @default(autoincrement())
   date  String
   total Float
 
@@ -242,7 +242,7 @@ model DetailSale {
 }
 
 model Order {
-  id     Int      @id @default(autoincrement())
+  id     Int     @id @default(autoincrement())
   date   String
   total  Float
   status Boolean
@@ -312,8 +312,8 @@ model Objectives {
 }
 
 model Evaluation {
-  id        Int      @id @default(autoincrement())
-  date      String
+  id       Int     @id @default(autoincrement())
+  date     String
   commment String?
 
   //Relacion 1:N con Objectives
@@ -329,15 +329,27 @@ model Evaluation {
 }
 
 model Staff {
-  id            Int    @id @default(autoincrement())
+  id            Int     @id @default(autoincrement())
   name          String
   lastName1     String
   lastName2     String?
   phone         String
   salary        Float
-  paymentMethod String
   position      String
   address       String
+
+  email       String  @unique
+  dateBirth   String
+  dateStart   String // Fecha de entrada a la empresa
+  dateFinish  String? // Fecha de salida del empleado
+  status      Boolean // Activo o No
+  cedula      String
+
+  // Detalles Bancarios
+  bankAccount String
+  AccountType String
+  currency    String
+  bankRoute   String
 
   //Relacion 1:N Ciudad
   city   City @relation(fields: [idCity], references: [id])
@@ -349,9 +361,49 @@ model Staff {
   //Relación 1:1 con Professor
   professor Professor?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deleted   Boolean  @default(false)
+  //Relación N:M con Nomina
+  DetailNomina DetailNomina[]
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deleted      Boolean        @default(false)
+}
+
+model Nomina {
+  id           Int            @id @default(autoincrement())
+  date         String
+  type         String // Si es del dia 15 o del 30 (quincenal o mensual)
+
+  DetailNomina DetailNomina[]
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deleted      Boolean        @default(false)
+}
+
+model DetailNomina {
+  idNomina     Int
+  nomina       Nomina @relation(fields: [idNomina], references: [id])
+  idStaff      Int
+  staff        Staff  @relation(fields: [idStaff], references: [id])
+
+  date        String
+
+  // Datos
+  salary       Float
+  extraDays    Int    // Numeros de dias extra trabajados
+  overtimePay  Float  // Lo ganado por trabajar dias extras ( [salario/23.83] * dias )
+  sfs          Float  // Seguro Familiar de Salud (3.04% de salario)
+  afp          Float  // Fondo de Pensión (2.78% de salario)
+  loans        Float  // Prestamos
+  other        Float
+  total        Float
+
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deleted      Boolean        @default(false)
+
+  @@id([idNomina, idStaff])
 }
 
 model Professor {
@@ -405,7 +457,7 @@ model City {
 }
 
 model Shift {
-  id          Int      @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   initialHour String
   finishHour  String
 
@@ -507,7 +559,7 @@ model GroupOnCamp {
 }
 
 model AcademicYear {
-  id        Int      @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   startTime String
   endTime   String
 
@@ -549,7 +601,7 @@ model Camp {
 }
 
 model Activity {
-  id          Int      @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   startTime   String
   endTime     String
   day         String
@@ -566,10 +618,10 @@ model Activity {
 
 // KEYS AUTH API 
 model AuthKey {
-  id        Int      @id @default(autoincrement())
-  key       String   @unique
-  owner     String?
-  
+  id    Int     @id @default(autoincrement())
+  key   String  @unique
+  owner String?
+
   createdAt DateTime @default(now())
   deleted   Boolean  @default(false)
 }

@@ -2,7 +2,8 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client'
 import validator from '../utils/validatorUtils';
 import resProcessor from '../utils/responseProcessor';
-import errorHandler from '../utils/errorHandler';
+import errorHandler from '../handlers/errorHandler';
+import routerHandler from '../handlers/routerHandler';
 
 const router = Router();
 const prisma = new PrismaClient()
@@ -13,7 +14,6 @@ function handleError(error: any) {
 }
 
 // LISTAR CON PAGINACION DE 10
-import routerHandler from '../utils/routerHandlers';
 router.get('/', async (req, res) => {
     const { page } = req.query;
     const pageSize = 10;

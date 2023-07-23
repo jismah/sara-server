@@ -2,7 +2,8 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client'
 import validator from '../utils/validatorUtils';
 import resProcessor from '../utils/responseProcessor';
-import errorHandler from '../utils/errorHandler';
+import errorHandler from '../handlers/errorHandler';
+import routerHandler from '../handlers/routerHandler';
 
 const router = Router();
 const prisma = new PrismaClient()

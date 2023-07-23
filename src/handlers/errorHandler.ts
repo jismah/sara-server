@@ -45,6 +45,10 @@ class ErrorHandler {
     recordNotFound(object: string) {
         return resProcessor.newMessage(500, "[" + object + "] " + "Una operación falló porque depende de uno o más registros que se requirieron pero no se encontraron.");
     }
+
+    objectNotFound(object: string) {
+        return resProcessor.newMessage(400, "[" + object + "] " + "No se pudo encontrar el record pedido.");
+    }
     
     modelNotFound(object: string) {
         return resProcessor.newMessage(500, "El modelo [" + object + "] no fue encontrado o no existe.");

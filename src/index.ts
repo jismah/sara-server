@@ -41,8 +41,9 @@ import shiftsRouter from './routes/shift';
 import professorsForGroupRouter from './routes/professorsForGroup';
 import studentOnGroupRouter from './routes/studentOnGroup';
 import groupRouter from './routes/group';
+import nominaRouter from './routes/nomina';
 
-import errorHandler from './utils/errorHandler';
+import errorHandler from './handlers/errorHandler';
 
 const app = express()
 const PORT = 3000
@@ -142,6 +143,7 @@ app.use('/api/professorsForGroup', professorsForGroupRouter);
 app.use('/api/studentOnGroup', studentOnGroupRouter);
 app.use('/api/groups', groupRouter);
 
+app.use('/api/nomina', nominaRouter);
 
 app.listen(PORT, () =>
     console.log(`SARA REST API server ready at: http://localhost:${PORT}`),

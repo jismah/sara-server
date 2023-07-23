@@ -4,11 +4,12 @@
 
 import { PrismaClient, StatusStudent } from '@prisma/client';
 import { faker } from '@faker-js/faker/locale/es';
+import moment from 'moment';
 
 const N_PEDIATRICIAN = 20;
-const N_FAMILY = 20;
-const N_CITY = 4;
-const N_PARENT = 31;
+const N_FAMILY = 10;
+const N_CITY = 5;
+const N_PARENT = 40;
 const N_PROGRAM = 20;
 
 const COUNT = 20;
@@ -23,7 +24,7 @@ const generateFakeData = () => {
             lastName2: faker.name.lastName(),
             status: getRandomStatus(),
             commentary: faker.lorem.lines(1),
-            dateBirth: faker.date.birthdate({ min: 0, max: 7, mode: 'age' }),
+            dateBirth: moment(faker.date.birthdate({ min: 0, max: 5, mode: 'age' })).format("YYYY-MM-DD"),
             housePhone: faker.phone.number('(###) ###-###'),
             address: faker.address.streetAddress(false),
             medicalCondition: faker.lorem.lines(1),
@@ -32,8 +33,8 @@ const generateFakeData = () => {
             idPediatrician: Math.floor(Math.random() * N_PEDIATRICIAN) + 1,
             idFamily: Math.floor(Math.random() * N_FAMILY) + 1,
             idCity: Math.floor(Math.random() * N_CITY) + 1,
-            idParent: Math.floor(Math.random() * N_PARENT) + 2,
-            idProgram: Math.floor(Math.random() * N_PROGRAM) + 22,
+            idParent: Math.floor(Math.random() * N_PARENT) + 21,
+            idProgram: Math.floor(Math.random() * N_PROGRAM) + 1,
         };
         fakeStudents.push(fakeItem);
     }

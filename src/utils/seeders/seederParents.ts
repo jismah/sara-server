@@ -5,7 +5,7 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker/locale/es';
 
-const N_FAMILY = 20;
+const N_FAMILY = 10;
 const COUNT = 20;
 
 const min = 10000000000; // Minimum 11-digit number (10 zeros)

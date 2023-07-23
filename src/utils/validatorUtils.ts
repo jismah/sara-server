@@ -50,7 +50,7 @@ class Validator {
     }
 
     validateDate(date: string) {
-        // Formato: (YYYY-MM-dd)
+        // Formato: (YYYY-MM-DD)
         const dateformat = /^\d{4}[-](0?[1-9]|1[0-2])[-](0?[1-9]|[1-2][0-9]|3[01])$/;
    
         if (date.match(dateformat)) {
@@ -102,7 +102,7 @@ class Validator {
             return false;
         }
 
-        throw new Error("Invalid String given: failed to boolean conversion");
+        throw new Error("Invalid String given: failed boolean conversion");
     }
       
 }
