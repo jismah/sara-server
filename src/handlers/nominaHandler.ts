@@ -1,6 +1,7 @@
 import { Nomina, PrismaClient } from '@prisma/client';
 import resProcessor from '../utils/responseProcessor';
 import errorHandler from './errorHandler';
+import encryptor from '../utils/keys/encryptionUtils';
 
 let instance: NominaHanlder;
 
@@ -295,10 +296,18 @@ class NominaHanlder {
           }
     
           const accFrom = `${accountType},${accountCurrency},${accountNumber},`;
+
+          let bankAccount;
+          try {
+            bankAccount = encryptor.decrypt(staff.bankAccount)
+          } catch (error: any) {
+            return resProcessor.newMessage(500, `Hubo un error al buscar la cuenta bancaria del empleado: ${staff.name + " " + staff.lastName1}`);
+          }
+
           const staffDetails = [
             staff.bankRoute,
             staff.AccountType,
-            staff.bankAccount,
+            bankAccount,
             detail.total,
             `${staff.name} ${staff.lastName1}${staff.lastName2 ? ' ' + staff.lastName2 : ''}`,
             `cedula,${staff.cedula}`,

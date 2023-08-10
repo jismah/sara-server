@@ -343,7 +343,7 @@ model Staff {
   dateStart   String // Fecha de entrada a la empresa
   dateFinish  String? // Fecha de salida del empleado
   status      Boolean // Activo o No
-  cedula      String
+  cedula      String @unique
 
   // Detalles Bancarios
   bankAccount String

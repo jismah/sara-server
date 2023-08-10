@@ -5,6 +5,7 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker/locale/es';
 import moment from 'moment';
+import encryptor from '../keys/encryptionUtils';
 
 const N_CITY = 5;
 const COUNT = 20;
@@ -30,7 +31,7 @@ const generateFakeData = () => {
           dateStart: moment(faker.date.past(1)).format("YYYY-MM-DD"),
           status: true,
           cedula: (Math.floor(Math.random() * (max - min + 1)) + min).toString(),
-          bankAccount: (Math.floor(Math.random() * (max - min + 1)) + min).toString(),
+          bankAccount: encryptor.encrypt((Math.floor(Math.random() * (max - min + 1)) + min).toString()),
           AccountType: "CC",
           currency: "DOP",
           bankRoute: faker.random.alphaNumeric(10),

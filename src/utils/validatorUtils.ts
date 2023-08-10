@@ -38,6 +38,15 @@ class Validator {
         return pattern.test(email);
     }
 
+    validateCedula(cedula: string) {
+        const pattern = /^(\d{11}|\d{3}-\d{7}-\d{1})$/;
+        return pattern.test(cedula);
+    }
+
+    formatCedula(cedula: string) {
+        return cedula.replace(/-/g, '');
+    }
+
     isNumeric(input: string) {
         input = input.trim();
         return /^\d*\.?\d+$/.test(input);

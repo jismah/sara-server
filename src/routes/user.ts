@@ -4,6 +4,7 @@ import validator from '../utils/validatorUtils';
 import resProcessor from '../utils/responseProcessor';
 import errorHandler from '../handlers/errorHandler';
 import routerHandler from '../handlers/routerHandler';
+import encryptor from '../utils/keys/encryptionUtils';
 
 const router = Router();
 const prisma = new PrismaClient()
@@ -41,6 +42,35 @@ router.get('/:id', async (req, res) => {
     }
 
     res.json(resProcessor.concatStatus(200, user));
+})
+
+// Revisar si el usuario es valido dado un username y password
+router.get('/validate/:username', async (req, res) => {
+    const { username } = req.params
+    const { password } = req.body;
+
+    let user;
+    try {
+        user = await prisma.user.findUnique({
+            where: { username: username },
+        })
+
+        if (!user) {
+            return res.json(resProcessor.concatStatus(200, false));
+        }
+
+        if (encryptor.decrypt(user.password) === password) {
+            return res.json(resProcessor.concatStatus(200, user));
+        }
+
+        return res.json(resProcessor.concatStatus(200, false));
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
 })
 
 // ELIMINAR (LOGICO) MEDIANTE ID
@@ -85,7 +115,7 @@ router.put('/:id', async (req, res) => {
                 name: name || undefined,
                 lastName1: lastName1 || undefined,
                 lastName2: lastName2 || undefined,
-                password: password || undefined,
+                password: encryptor.encrypt(password) || undefined,
                 email: email || undefined,
                 phone: phone || undefined,
                 role: role || undefined,
@@ -126,7 +156,7 @@ router.post('/', async (req, res) => {
                 name: name,
                 lastName1: lastName1,
                 lastName2: lastName2 || undefined,
-                password: password,
+                password: encryptor.encrypt(password),
                 email: email,
                 phone: phone,
                 role: role,
@@ -145,7 +175,7 @@ router.post('/', async (req, res) => {
                     name: name,
                     lastName1: lastName1,
                     lastName2: lastName2 || undefined,
-                    password: password,
+                    password: encryptor.encrypt(password),
                     email: email,
                     phone: phone,
                     role: role,

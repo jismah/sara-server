@@ -114,5 +114,4 @@ router.post('/', async (req, res) => {
     res.status(200).json(resProcessor.concatStatus(200, result));
 })
 
-
 export default router;
