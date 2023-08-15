@@ -8,7 +8,7 @@ import moment from 'moment';
 import encryptor from '../keys/encryptionUtils';
 
 const N_CITY = 5;
-const COUNT = 20;
+const COUNT = 40;
 
 const min = 10000000000; // Minimum 11-digit number (10 zeros)
 const max = 99999999999; // Maximum 11-digit number (all nines)
@@ -21,7 +21,7 @@ const generateFakeData = () => {
           name: faker.name.firstName(),
           lastName1: faker.name.lastName(),
           lastName2: faker.name.lastName(),
-          idCity: Math.floor(Math.random() * N_CITY) + 2,
+          idCity: Math.floor(Math.random() * N_CITY) + 1,
           phone: faker.phone.number('(###) ###-###'),
           email: faker.internet.email(),
           position: faker.name.jobTitle(),

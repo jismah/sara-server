@@ -207,7 +207,7 @@ class NominaHanlder {
     }
 
     // Could return less than the page_size if the months are not all filled
-    async getQuincenal(year: string, res: any, page?: number) {
+    async getQuincenal(year: string, page?: number) {
       if (!page || page <= 0) {
         page = 1
       }
@@ -230,16 +230,16 @@ class NominaHanlder {
           quincenales.push(response);
         }
         
-        res.json(resProcessor.concatStatus(200, quincenales, nominas.length));
+        return resProcessor.concatStatus(200, quincenales, nominas.length);
 
       } catch (error) {
-        return res.json(this.handleError(error));
+        return this.handleError(error);
       } finally {
         await this.prisma.$disconnect();
       }
     }
 
-    async getMonthly(year: string, res: any, page?: number) {
+    async getMonthly(year: string, page?: number) {
       if (!page || page <= 0) {
         page = 1
       }
@@ -258,10 +258,10 @@ class NominaHanlder {
           mensuales.push(response)
         }
         
-        res.json(resProcessor.concatStatus(200, mensuales, mensuales.length));
+        return resProcessor.concatStatus(200, mensuales, mensuales.length);
 
       } catch (error) {
-        return res.json(this.handleError(error));
+        return this.handleError(error);
       } finally {
         await this.prisma.$disconnect();
       }
@@ -327,6 +327,33 @@ class NominaHanlder {
         await this.prisma.$disconnect();
       }
     }
+
+    async getRecent(num_months: number): Promise<Array<{ year: string, month: string, total: number }>> {
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.getMonth() + 1;
+    
+      const results = [];
+    
+      for (let i = 0; i < num_months; i++) {
+        const year = currentYear - Math.floor((currentMonth + i - 1) / 12);
+        const month = (currentMonth + 12 - i) % 12 || 12;
+        const monthString = month.toString().padStart(2, '0');
+        const yearString = year.toString();
+    
+        const totals = await this.getTotalsByDate(yearString, monthString);
+    
+        results.push({
+          year: yearString,
+          month: monthString,
+          total: totals.total,
+        });
+      }
+
+      console.log(results);
+      return results;
+    }  
+
   }
 
 let nominaHanlder = new NominaHanlder();

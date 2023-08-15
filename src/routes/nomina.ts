@@ -35,7 +35,7 @@ router.get('/doc', async (req, res) => {
 router.get('/mensual', async (req, res) => {
     const { year } = req.body
 
-    await nominaHandler.getMonthly(year, res, 1)
+    res.json(await nominaHandler.getMonthly(year, 1))
 });
 
 router.get('/quincenal', async (req, res) => {
@@ -47,7 +47,7 @@ router.get('/quincenal', async (req, res) => {
         page_int = 1
     }
 
-    await nominaHandler.getQuincenal(year, res, page_int)
+    res.json(await nominaHandler.getQuincenal(year, page_int))
 });
 
 // LISTAR MEDIANTE STAFF

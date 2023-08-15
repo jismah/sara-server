@@ -42,6 +42,7 @@ import professorsForGroupRouter from './routes/professorsForGroup';
 import studentOnGroupRouter from './routes/studentOnGroup';
 import groupRouter from './routes/group';
 import nominaRouter from './routes/nomina';
+import graphRouter from './routes/graphs';
 
 import errorHandler from './handlers/errorHandler';
 
@@ -144,6 +145,7 @@ app.use('/api/studentOnGroup', studentOnGroupRouter);
 app.use('/api/groups', groupRouter);
 
 app.use('/api/nomina', nominaRouter);
+app.use('/api/graphs', graphRouter);
 
 app.listen(PORT, () =>
     console.log(`SARA REST API server ready at: http://localhost:${PORT}`),

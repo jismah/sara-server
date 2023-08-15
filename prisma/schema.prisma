@@ -281,6 +281,7 @@ model Program {
   maxStudents   Int
   inscription   Float
   monthlyAmount Float
+  status        Boolean @default(true)
 
   //Relacion 1:N con Student
   students Student[]
@@ -566,9 +567,6 @@ model AcademicYear {
   //Relacion 1:N con Shift
   shifts Shift[]
 
-  //Relacion 1:N con Camp
-  camps Camp[]
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deleted   Boolean  @default(false)
@@ -582,9 +580,9 @@ model Camp {
   capacity    Int?
   description String
 
-  //Relacion 1:N con AcademicYear
-  academicYear   AcademicYear @relation(fields: [idAcademicYear], references: [id])
-  idAcademicYear Int
+  // Fechas
+  startDate String
+  endDate   String
 
   //Relacion 1:N con Activity
   activities Activity[]

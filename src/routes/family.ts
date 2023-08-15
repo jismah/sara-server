@@ -29,7 +29,22 @@ router.get('/:id', async (req, res) => {
     try {
         family = await prisma.family.findUnique({
             where: { id: Number(id) },
-        })
+            include: {
+                students: true,
+                parents: true,
+                user: { select: {
+                    id: true,
+                    username: true,
+                    name: true,
+                    lastName1: true,
+                    lastName2: true,
+                    email: true,
+                    phone: true,
+                    role: true,
+                    idFamily: true, 
+                } }
+            }
+        });
     } catch (error: any) {
         return res.json(handleError(error));
         
@@ -38,6 +53,69 @@ router.get('/:id', async (req, res) => {
     }
 
     res.json(resProcessor.concatStatus(200, family));
+})
+
+// LISTAR ESTUDIANTES RELACIONADOS 
+router.get('/:id/students', async (req, res) => {
+    const { id } = req.params
+
+    let students;
+    try {
+        students = await prisma.student.findMany({
+            where: { 
+                idFamily: Number(id)
+            },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.json(resProcessor.concatStatus(200, students, students.length));
+})
+
+// LISTAR PADRES RELACIONADOS 
+router.get('/:id/parents', async (req, res) => {
+    const { id } = req.params
+
+    let parents;
+    try {
+        parents = await prisma.parent.findMany({
+            where: { 
+                idFamily: Number(id)
+            },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.json(resProcessor.concatStatus(200, parents, parents.length));
+})
+
+// LISTAR USUARIO RELACIONADO
+router.get('/:id/user', async (req, res) => {
+    const { id } = req.params
+
+    let user;
+    try {
+        user = await prisma.user.findUnique({
+            where: { 
+                idFamily: Number(id)
+            },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.json(resProcessor.concatStatus(200, user, user ? 1 : 0));
 })
 
 // ELIMINAR (LOGICO) MEDIANTE ID

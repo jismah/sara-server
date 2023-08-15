@@ -5,7 +5,7 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker/locale/es';
 
-const COUNT = 20;
+const COUNT = 10;
 
 const generateFakeData = () => {
     const fakeData = [];

@@ -10,9 +10,9 @@ const N_PEDIATRICIAN = 20;
 const N_FAMILY = 10;
 const N_CITY = 5;
 const N_PARENT = 40;
-const N_PROGRAM = 20;
+const N_PROGRAM = 10;
 
-const COUNT = 20;
+const COUNT = 40;
 
 const generateFakeData = () => {
     const fakeStudents = [];
@@ -33,7 +33,7 @@ const generateFakeData = () => {
             idPediatrician: Math.floor(Math.random() * N_PEDIATRICIAN) + 1,
             idFamily: Math.floor(Math.random() * N_FAMILY) + 1,
             idCity: Math.floor(Math.random() * N_CITY) + 1,
-            idParent: Math.floor(Math.random() * N_PARENT) + 21,
+            idParent: Math.floor(Math.random() * N_PARENT) + 1,
             idProgram: Math.floor(Math.random() * N_PROGRAM) + 1,
         };
         fakeStudents.push(fakeItem);

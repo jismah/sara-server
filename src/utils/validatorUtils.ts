@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import moment from 'moment';
 
 let instance: Validator;
 
@@ -90,6 +91,17 @@ class Validator {
         } else {
             return false;
         }
+        return true;
+    }
+
+    validDateRange(start: string, end: string) {
+        const startDate = moment(start, 'YYYY-MM-DD');
+        const endDate = moment(end, 'YYYY-MM-DD');
+        
+        if (startDate.isSameOrAfter(endDate)) {
+            return false;
+        }
+    
         return true;
     }
 

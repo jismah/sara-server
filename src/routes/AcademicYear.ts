@@ -128,6 +128,10 @@ async function validate(startTime: string, endTime: string) {
         message = "Formato de fecha de fin invalido";
         return {result: false, message: message}
     }
+    if (startTime && endTime && !validator.validDateRange(startTime, endTime)) {
+        message = "La fecha de inicio no puede ser despues que la fecha de fin";
+        return {result: false, message: message}
+    }
     return {result: true}
 }
 

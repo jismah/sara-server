@@ -64,10 +64,10 @@ router.delete('/:id', async (req, res) => {
 
 // ACTUALIZAR UN PROGRAMA MEDIANTE ID
 router.put('/:id', async (req, res) => {
-    const { description, maxStudents, inscription, monthlyAmount } = req.body;
+    const { description, maxStudents, inscription, monthlyAmount, status } = req.body;
     const { id } = req.params;
 
-    const valid = await validate(maxStudents, inscription, monthlyAmount);
+    const valid = await validate(maxStudents, inscription, monthlyAmount, status);
     if (!valid.result) {
         return res.json(resProcessor.newMessage(400, valid.message));
     }
@@ -80,7 +80,8 @@ router.put('/:id', async (req, res) => {
                 description: description || undefined,
                 maxStudents: maxStudents ? Number(maxStudents) : undefined,
                 inscription: inscription ? parseFloat(inscription) : undefined,
-                monthlyAmount: monthlyAmount ? parseFloat(monthlyAmount) : undefined
+                monthlyAmount: monthlyAmount ? parseFloat(monthlyAmount) : undefined,
+                status: status ? validator.toBool(status) : undefined,
             },
         });
     } catch (error: any) {
@@ -95,9 +96,9 @@ router.put('/:id', async (req, res) => {
 
 // CREAR UN NUEVO PROGRMA
 router.post('/', async (req, res) => {
-    const { description, maxStudents, inscription, monthlyAmount } = req.body
+    const { description, maxStudents, inscription, monthlyAmount, status } = req.body
 
-    const valid = await validate(maxStudents, inscription, monthlyAmount);
+    const valid = await validate(maxStudents, inscription, monthlyAmount, status);
     if (!valid.result) {
         return res.json(resProcessor.newMessage(400, valid.message));
     }
@@ -113,7 +114,8 @@ router.post('/', async (req, res) => {
                 description: description,
                 maxStudents: Number(maxStudents),
                 inscription: parseFloat(inscription),
-                monthlyAmount: parseFloat(monthlyAmount)
+                monthlyAmount: parseFloat(monthlyAmount),
+                status: status ? validator.toBool(status) : undefined,
             },
         })
     } catch (error: any) {
@@ -126,7 +128,7 @@ router.post('/', async (req, res) => {
     res.status(200).json(resProcessor.concatStatus(200, result));
 })
 
-async function validate(maxStudents: string, inscription: string, monthlyAmount: string) {
+async function validate(maxStudents: string, inscription: string, monthlyAmount: string, status: string) {
     
     let message = "";
     if (maxStudents && !validator.isNumeric(maxStudents)) {
@@ -139,6 +141,10 @@ async function validate(maxStudents: string, inscription: string, monthlyAmount:
     }
     if (monthlyAmount && !validator.isNumeric(monthlyAmount)) {
         message = "El monto menusal recibio un dato erroneo";
+        return {result: false, message: message}
+    }
+    if (status && !validator.isBoolean(status)) {
+        message = "Estatus de programa no valido";
         return {result: false, message: message}
     }
     return {result: true}
