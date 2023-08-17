@@ -81,7 +81,7 @@ router.put('/:id', async (req, res) => {
                 lastName1: lastName1 || undefined,
                 lastName2: lastName2 || undefined,
                 telephone: telephone || undefined,
-                email: email || undefined,
+                email: email ? email.toLowerCase() : undefined,
                 occupation: occupation || undefined,
                 idFamily: idFamily ? Number(idFamily) : undefined,
             }
@@ -120,7 +120,7 @@ router.post('/', async (req, res) => {
                 lastName1: lastName1,
                 lastName2: lastName2 || undefined,
                 telephone: telephone || undefined,
-                email: email,
+                email: email.toLowerCase(),
                 occupation: occupation || undefined,
                 idFamily: Number(idFamily),
             }

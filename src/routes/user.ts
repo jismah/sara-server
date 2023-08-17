@@ -116,7 +116,7 @@ router.put('/:id', async (req, res) => {
                 lastName1: lastName1 || undefined,
                 lastName2: lastName2 || undefined,
                 password: encryptor.encrypt(password) || undefined,
-                email: email || undefined,
+                email: email ? email.toLowerCase() : undefined,
                 phone: phone || undefined,
                 role: role || undefined,
                 idFamily: idFamily ? Number(idFamily) : undefined
@@ -157,7 +157,7 @@ router.post('/', async (req, res) => {
                 lastName1: lastName1,
                 lastName2: lastName2 || undefined,
                 password: encryptor.encrypt(password),
-                email: email,
+                email: email.toLowerCase(),
                 phone: phone,
                 role: role,
                 family: {
@@ -176,7 +176,7 @@ router.post('/', async (req, res) => {
                     lastName1: lastName1,
                     lastName2: lastName2 || undefined,
                     password: encryptor.encrypt(password),
-                    email: email,
+                    email: email.toLowerCase(),
                     phone: phone,
                     role: role,
                 },

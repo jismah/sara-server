@@ -142,7 +142,7 @@ router.put('/:id', async (req, res) => {
                 salary: salary ? parseFloat(salary) : undefined,
                 position: position || undefined,
                 address: address || undefined,
-                email: email || undefined,
+                email: email ? email.toLowerCase() : undefined,
 
                 dateBirth: dateBirth || undefined,
                 dateStart: dateStart || undefined,
@@ -192,7 +192,7 @@ router.post('/', async (req, res) => {
                 salary: parseFloat(salary),
                 position: position,
                 address: address,
-                email: email,
+                email: email.toLowerCase(),
 
                 dateBirth: dateBirth,
                 dateStart: dateStart,
