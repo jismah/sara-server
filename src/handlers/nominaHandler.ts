@@ -74,7 +74,31 @@ class NominaHanlder {
         },
       });
       
-      return totals[0]._sum;
+      if (totals.length === 0 || !totals[0]._sum) {
+        return {
+          salary: 0,
+          overtimePay: 0,
+          sfs: 0,
+          afp: 0,
+          loans: 0,
+          other: 0,
+          total: 0,
+        };
+      }
+    
+      const sum = totals[0]._sum;
+
+      const roundedTotals = {
+        salary: sum.salary ? parseFloat(sum.salary.toFixed(2)) : 0,
+        overtimePay: sum.overtimePay ? parseFloat(sum.overtimePay.toFixed(2)) : 0,
+        sfs: sum.sfs ? parseFloat(sum.sfs.toFixed(2)) : 0,
+        afp: sum.afp ? parseFloat(sum.afp.toFixed(2)) : 0,
+        loans: sum.loans ? parseFloat(sum.loans.toFixed(2)) : 0,
+        other: sum.other ? parseFloat(sum.other.toFixed(2)) : 0,
+        total: sum.total ? parseFloat(sum.total.toFixed(2)) : 0,
+      };
+    
+      return roundedTotals;
     }
 
     async getTotalsByDate(year: string, month: string) {
@@ -230,7 +254,33 @@ class NominaHanlder {
           quincenales.push(response);
         }
         
-        return resProcessor.concatStatus(200, quincenales, nominas.length);
+        return resProcessor.concatStatus(200, quincenales, quincenales.length);
+
+      } catch (error) {
+        return this.handleError(error);
+      } finally {
+        await this.prisma.$disconnect();
+      }
+    }
+
+    async getAllQuincenal(year: string) {
+      try {
+        const nominas = await this.getNominasInYear(year);
+    
+        const quincenales = [];
+    
+        for (const nomina of nominas) {
+          const totals = await this.getNominaTotals(nomina.id);
+          const response = {
+            id: nomina.id,
+            date: nomina.date,
+            type: nomina.type,
+            totals: totals,
+          };
+          quincenales.push(response);
+        }
+        
+        return resProcessor.concatStatus(200, quincenales, quincenales.length);
 
       } catch (error) {
         return this.handleError(error);

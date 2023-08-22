@@ -42,6 +42,7 @@ import professorsForGroupRouter from './routes/professorsForGroup';
 import studentOnGroupRouter from './routes/studentOnGroup';
 import groupRouter from './routes/group';
 import nominaRouter from './routes/nomina';
+import detailNominaRouter from './routes/detailNomina'
 import graphRouter from './routes/graphs';
 
 import errorHandler from './handlers/errorHandler';
@@ -145,6 +146,7 @@ app.use('/api/studentOnGroup', studentOnGroupRouter);
 app.use('/api/groups', groupRouter);
 
 app.use('/api/nomina', nominaRouter);
+app.use('/api/detailNomina', detailNominaRouter);
 app.use('/api/graphs', graphRouter);
 
 app.listen(PORT, () =>

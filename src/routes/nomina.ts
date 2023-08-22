@@ -13,8 +13,7 @@ function handleError(error: any) {
     return errorHandler.checkError(object, error);
 }
 
-// LISTAR CON PAGINACION DE 10
-router.get('/doc', async (req, res) => {
+router.post('/doc', async (req, res) => {
     const { nominaId,  accountType, accountCurrency, accountNumber} = req.body
 
     if (!nominaId || !accountType || !accountCurrency || !accountNumber) {
@@ -32,28 +31,42 @@ router.get('/doc', async (req, res) => {
     res.json(await nominaHandler.getBankDoc(Number(nominaId), accountType, accountCurrency, accountNumber));
 });
 
-router.get('/mensual', async (req, res) => {
-    const { year } = req.body
-
-    res.json(await nominaHandler.getMonthly(year, 1))
-});
-
 router.get('/quincenal', async (req, res) => {
-    const { page } = req.query;
-    const { year } = req.body
+    const { year } = req.query
 
-    let page_int = page && validator.isNumeric(page.toString()) ? Number(page) : 1;
-    if (page_int <= 0) {
-        page_int = 1
+    if (!year) {
+        return res.json(resProcessor.newMessage(400, '[Nomina] Faltan datos requeridos'));
     }
 
-    res.json(await nominaHandler.getQuincenal(year, page_int))
+    res.json(await nominaHandler.getAllQuincenal(year.toString()))
 });
+
+// router.get('/mensual', async (req, res) => {
+//     let { year } = req.query
+
+//     res.json(await nominaHandler.getMonthly(year, 1))
+// });
+
+// router.get('/quincenal', async (req, res) => {
+//     const { page } = req.query;
+//     const { year } = req.body
+
+//     if (!year) {
+//         return res.json(resProcessor.newMessage(400, '[Nomina] Faltan datos requeridos'));
+//     }
+
+//     let page_int = page && validator.isNumeric(page.toString()) ? Number(page) : 1;
+//     if (page_int <= 0) {
+//         page_int = 1
+//     }
+
+//     res.json(await nominaHandler.getQuincenal(year, page_int))
+// });
 
 // LISTAR MEDIANTE STAFF
 router.get('/staff/:idStaff', async (req, res) => {
     const { idStaff } = req.params
-    let { year, month } = req.body
+    let { year, month } = req.query
 
     if (!year || !idStaff) {
         return res.json(resProcessor.newMessage(400, '[Nomina] Faltan datos requeridos'));
@@ -63,13 +76,15 @@ router.get('/staff/:idStaff', async (req, res) => {
         return res.json(resProcessor.newMessage(400, "[Nomina] Se recibio un idStaff invalido al buscar la nomina segun el empleado"))
     }
 
-    let valid = await validate(undefined, undefined, year);
+    let valid = await validate(undefined, undefined, year.toString());
     if (!valid.result) {
         return res.json(resProcessor.newMessage(400, valid.message));
+    } else {
+        year = year.toString();
     }
 
     if (month) {
-        valid = await validate(undefined, undefined, month);
+        valid = await validate(undefined, undefined, month.toString());
         if (!valid.result) {
             return res.json(resProcessor.newMessage(400, valid.message));
         } else {
@@ -83,15 +98,16 @@ router.get('/staff/:idStaff', async (req, res) => {
 // LISTAR MEDIANTE ID
 router.get('/:id', async (req, res) => {
     const { id } = req.params
-    let { detail } = req.body
+    let { detail_query } = req.query
+    let detail;
 
     if (!id || !validator.isNumeric(id)) {
         return res.json(resProcessor.newMessage(400, "[Nomina] Se recibio un id invalido al buscar la nomina"))
     }
 
-    if (!detail) {
+    if (!detail_query) {
         detail = false;
-    } else if (!validator.isBoolean(detail) || validator.toBool(detail) == false) {
+    } else if (!validator.isBoolean(detail_query.toString()) || validator.toBool(detail_query.toString()) == false) {
         detail = false;
     } else {
         detail = true

@@ -16,15 +16,20 @@ function handleError(error: any) {
 
 // Gastos por nomina anual
 router.get('/nomina', async (req, res) => {
-    const { cant } = req.body;
+    const { cant } = req.query;
+    let cant_int;
 
-    if (!validator.isNumeric(cant)) {
-        return res.json(resProcessor.newMessage(400, "Cantidad dada no numerica"))
-    }
-    const cant_int = Number(cant);
+    if (cant) {
+        if (!validator.isNumeric(cant.toString())) {
+            return res.json(resProcessor.newMessage(400, "Cantidad dada no numerica"))
+        }
+        cant_int = Number(cant);
 
-    if (cant_int <= 0) {
-        return res.json(resProcessor.newMessage(400, "Cantidad dada debe ser mayor que 0"))
+        if (cant_int <= 0) {
+            return res.json(resProcessor.newMessage(400, "Cantidad dada debe ser mayor que 0"))
+        }
+    } else {
+        cant_int = 6 // Default
     }
 
     try {
@@ -81,15 +86,20 @@ router.get('/counts', async (req, res) => {
 
 // Numero de estudiantes por programas
 router.get('/studentPrograms', async (req, res) => {
-    const { cant } = req.body;
+    const { cant } = req.query;
+    let limit;
 
-    if (!validator.isNumeric(cant)) {
-        return res.json(resProcessor.newMessage(400, "Cantidad dada no numerica"))
-    }
-    const limit = Number(cant);
+    if (cant) {
+        if (!validator.isNumeric(cant.toString())) {
+            return res.json(resProcessor.newMessage(400, "Cantidad dada no numerica"))
+        }
+        limit = Number(cant);
 
-    if (limit <= 0) {
-        return res.json(resProcessor.newMessage(400, "Cantidad dada debe ser mayor que 0"))
+        if (limit <= 0) {
+            return res.json(resProcessor.newMessage(400, "Cantidad dada debe ser mayor que 0"))
+        }
+    } else {
+        limit = 5; // Default
     }
 
     let formattedData;

@@ -45,7 +45,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // Revisar si el usuario es valido dado un username y password
-router.get('/validate/:username', async (req, res) => {
+router.post('/validate/:username', async (req, res) => {
     const { username } = req.params
     const { password } = req.body;
 
