@@ -44,8 +44,15 @@ router.get('/:id', async (req, res) => {
     res.json(resProcessor.concatStatus(200, user));
 })
 
+// Revisar si el usuario esta disponible
+router.get('/validate/:username', async (req, res) => {
+    const { username } = req.params
+
+    return res.json(resProcessor.concatStatus(200, validator.isUnique("user", "username", username)))
+})
+
 // Revisar si el usuario es valido dado un username y password
-router.post('/validate/:username', async (req, res) => {
+router.post('/access/:username', async (req, res) => {
     const { username } = req.params
     const { password } = req.body;
 

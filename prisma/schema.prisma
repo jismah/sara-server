@@ -20,11 +20,12 @@ model Student {
   dateBirth  String
   housePhone String
   address    String
+  
   //Relacion 1:N con Tutor
   tutors     Tutor[] //Persona autorizada (Tutor) para buscar el niño
 
-  //Relacion 1:1 con Contacto de emergencia
-  emergencyContact EmergencyContact?
+  //Relacion 1:N con Contacto de emergencia
+  emergencyContacts EmergencyContact[]
 
   medicalCondition String? //Alergia, intolerancia, condición o enfermedad 
 
@@ -122,8 +123,8 @@ model EmergencyContact {
   name  String
   phone String
 
-  //Relacion de 1:1 con estudiante
-  idStudent Int     @unique
+  //Relacion de 1:N con estudiante
+  idStudent Int
   student   Student @relation(fields: [idStudent], references: [id])
 
   createdAt DateTime @default(now())
