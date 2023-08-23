@@ -28,6 +28,32 @@ router.get('/', async (req, res) => {
     await routerHandler.getData("student", pageSize, page, res);
 });
 
+// OBTENER LAS RELACIONES DE ESTUDIANTES
+router.get('/realtions/:id', async (req, res) => {
+    const { id } = req.params
+
+    let student;
+    try {
+        student = await prisma.student.findUnique({
+            where: { id: Number(id) },
+            select: {
+                tutors: true,
+                emergencyContacts: true,
+                evaluations: true,
+                pediatrician: true
+            }
+        })
+
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.json(resProcessor.concatStatus(200, student));
+});
+
 // LISTAR UN ESTUDIANTE MEDIANTE ID
 router.get('/:id', async (req, res) => {
     const { id } = req.params

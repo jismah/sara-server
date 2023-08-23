@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import validator from '../utils/validatorUtils';
 import resProcessor from '../utils/responseProcessor';
 import errorHandler from '../handlers/errorHandler';
+import nominaHanlder from '../handlers/nominaHandler';
 
 const router = Router();
 const prisma = new PrismaClient()
@@ -20,16 +21,27 @@ router.get('/:idNomina', async (req, res) => {
         return res.json(resProcessor.newMessage(400, "[Deatil Nomina] Se recibio un idNomina invalido al buscar los detalles de nomina"))
     }
 
-    let nominas;
+    let response, nominas;
     try {
         nominas = await prisma.detailNomina.findMany({
             where: {
                 idNomina: Number(idNomina),
+                deleted: false,
             },
-            include: {
-                nomina: false,
+            select: {
+                date: true,
+                salary: true,
+                extraDays: true,
+                overtimePay: true,
+                sfs: true,
+                afp: true,
+                loans: true,
+                other: true,
+                total: true,
+                
                 staff: {
                     select: {
+                        id: true,
                         name: true,
                         lastName1: true,
                         lastName2: true,
@@ -39,6 +51,13 @@ router.get('/:idNomina', async (req, res) => {
                 },
             }
         })
+
+        const totals = await nominaHanlder.getNominaTotals(Number(idNomina))
+
+        response = {
+            nominas: nominas,
+            totals: totals
+        }
     } catch (error: any) {
         return res.json(handleError(error));
         
@@ -46,7 +65,7 @@ router.get('/:idNomina', async (req, res) => {
         await prisma.$disconnect();
     }
 
-    res.json(resProcessor.concatStatus(200, nominas));    
+    res.json(resProcessor.concatStatus(200, response, nominas.length));    
 })
 
 // ELIMINAR (LOGICO) MEDIANTE ID
