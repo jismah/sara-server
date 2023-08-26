@@ -70,6 +70,7 @@ class NominaHanlder {
           total: true,
         },
         where: {
+          deleted: false,
           idNomina: id,
         },
       });
@@ -147,6 +148,54 @@ class NominaHanlder {
       return aggregatedTotals;
     }
 
+    async getYearlyTotalsForStaff(idStaff: number, year: string) {
+      const totals = await this.prisma.detailNomina.groupBy({
+        by: ["idStaff"],
+        _sum: {
+          salary: true,
+          overtimePay: true,
+          sfs: true,
+          afp: true,
+          loans: true,
+          other: true,
+          total: true,
+        },
+        where: {
+          deleted: false,
+          idStaff: idStaff,
+          date: {
+            startsWith: year,
+          },
+        },
+      });
+      
+      if (totals.length === 0 || !totals[0]._sum) {
+        return {
+          salary: 0,
+          overtimePay: 0,
+          sfs: 0,
+          afp: 0,
+          loans: 0,
+          other: 0,
+          total: 0,
+        };
+      }
+    
+      const sum = totals[0]._sum;
+
+      const roundedTotals = {
+        salary: sum.salary ? parseFloat(sum.salary.toFixed(2)) : 0,
+        overtimePay: sum.overtimePay ? parseFloat(sum.overtimePay.toFixed(2)) : 0,
+        sfs: sum.sfs ? parseFloat(sum.sfs.toFixed(2)) : 0,
+        afp: sum.afp ? parseFloat(sum.afp.toFixed(2)) : 0,
+        loans: sum.loans ? parseFloat(sum.loans.toFixed(2)) : 0,
+        other: sum.other ? parseFloat(sum.other.toFixed(2)) : 0,
+        total: sum.total ? parseFloat(sum.total.toFixed(2)) : 0,
+      };
+    
+      return roundedTotals;
+    }    
+
     async getByStaff(idStaff: number, year: string, month?: string) {
       let date;
       if (!month || Number(month) <= 0 || Number(month) > 12) {
@@ -164,8 +213,10 @@ class NominaHanlder {
           },
         },
       });
+
+      const totals = await this.getYearlyTotalsForStaff(idStaff, year);
       
-      return resProcessor.concatStatus(200, nominas)
+      return resProcessor.concatStatus(200, {nominas: nominas, totals: totals}, nominas.length)
     }
     
     // detail = True, incluye los objetos DetailNomina relacionados

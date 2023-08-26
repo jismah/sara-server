@@ -21,6 +21,55 @@ router.get('/', async (req, res) => {
     await routerHandler.getData("group", pageSize, page, res);
 });
 
+router.get('/info', async (req, res) => {
+    let response;
+    try {
+        const students = await prisma.student.findMany({
+            where: { deleted: false, status: "ENROLLED" }
+        })
+        const professors = await prisma.professor.findMany({
+            where: {
+                deleted: false,
+                staff: {
+                    status: true,
+                }
+            },
+            include: {
+                staff: {
+                    select: {
+                        id: true,
+                        name: true,
+                        lastName1: true,
+                        lastName2: true,
+                    }
+                },
+            }
+        })
+        const shifts = await prisma.shift.findMany({
+            where: {
+                deleted: false
+            },
+            include: {
+                weekDay: true,
+                academicYear: true,
+            }
+        })
+
+        response = {
+            students: students,
+            professors: professors,
+            shifts: shifts
+        }
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.json(resProcessor.concatStatus(200, response));
+});
+
 // LISTAR MEDIANTE ID
 router.get('/:id', async (req, res) => {
     const { id } = req.params

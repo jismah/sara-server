@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
 });
 
 // OBTENER LAS RELACIONES DE ESTUDIANTES
-router.get('/realtions/:id', async (req, res) => {
+router.get('/relations/:id', async (req, res) => {
     const { id } = req.params
 
     let student;

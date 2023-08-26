@@ -156,9 +156,8 @@ router.post('/', async (req, res) => {
 
     let createdUser;
     try {
-        if (role === "USER") {
-            createdUser = await prisma.user.create({
-                data: {
+        createdUser = await prisma.user.create({
+            data: {
                 username: username,
                 name: name,
                 lastName1: lastName1,
@@ -167,28 +166,8 @@ router.post('/', async (req, res) => {
                 email: email.toLowerCase(),
                 phone: phone,
                 role: role,
-                family: {
-                        create: {},
-                    },
-                },
-                include: {
-                    family: true,
-                },
-            });
-        } else {
-            createdUser = await prisma.user.create({
-                data: {
-                    username: username,
-                    name: name,
-                    lastName1: lastName1,
-                    lastName2: lastName2 || undefined,
-                    password: encryptor.encrypt(password),
-                    email: email.toLowerCase(),
-                    phone: phone,
-                    role: role,
-                },
-            });
-        }
+            },
+        });
     } catch (error: any) {
         return res.json(handleError(error));
         

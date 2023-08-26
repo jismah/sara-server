@@ -40,6 +40,32 @@ router.get('/:id', async (req, res) => {
     res.json(resProcessor.concatStatus(200, program));
 })
 
+router.get('/info/:id', async (req, res) => {
+    const { id } = req.params
+
+    let program;
+    try {
+        program = await prisma.program.findUnique({
+            where: { id: Number(id) },
+            include: {
+                students: true,
+                objectives: {
+                    include: {
+                        evaluation: true,
+                    }
+                }
+            }
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.json(resProcessor.concatStatus(200, program));
+})
+
 // ELIMINAR (LOGICO) UN PROGRAMA MEDIANTE ID
 router.delete('/:id', async (req, res) => {
     const { id } = req.params

@@ -40,6 +40,28 @@ router.get('/:id', async (req, res) => {
     res.json(resProcessor.concatStatus(200, evaluation));
 })
 
+// LISTAR MEDIANTE ID
+router.get('/info/:id', async (req, res) => {
+    const { id } = req.params
+
+    let evaluation;
+    try {
+        evaluation = await prisma.evaluation.findUnique({
+            where: { id: Number(id) },
+            include: {
+                objectives: true
+            }
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.json(resProcessor.concatStatus(200, evaluation));
+})
+
 // ELIMINAR (LOGICO) MEDIANTE ID
 router.delete('/:id', async (req, res) => {
     const { id } = req.params

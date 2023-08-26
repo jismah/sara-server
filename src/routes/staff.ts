@@ -78,7 +78,11 @@ router.get('/:id', async (req, res) => {
         await prisma.$disconnect();
     }
 
-    res.status(200).json(resProcessor.concatStatus(200, staff));
+    if (staff) {
+        res.status(200).json(resProcessor.concatStatus(200, staff));
+    } else {
+        res.status(200).json(resProcessor.concatStatus(400, staff));
+    }
 })
 
 // LISTAR UN STAFF MEDIANTE CEDULA

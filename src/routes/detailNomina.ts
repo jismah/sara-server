@@ -13,6 +13,43 @@ function handleError(error: any) {
     return errorHandler.checkError(object, error);
 }
 
+router.get('/new', async (req, res) => {
+    let response;
+    try {
+        const nominas = await prisma.nomina.findMany({
+            where: { deleted: false },
+            select: {
+                id: true,
+                date: true,
+            }
+        })
+
+        const staff = await prisma.staff.findMany({
+            where: { deleted: false, status: true },
+            select: {
+                id: true,
+                name: true,
+                lastName1: true,
+                lastName2: true,
+                salary: true,
+            }
+        })
+
+        response = {
+            nominas: nominas,
+            staff: staff
+        }
+
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.json(resProcessor.concatStatus(200, response));
+});
+
 // LISTAR MEDIANTE ID
 router.get('/:idNomina', async (req, res) => {
     const { idNomina } = req.params
@@ -29,7 +66,6 @@ router.get('/:idNomina', async (req, res) => {
                 deleted: false,
             },
             select: {
-                date: true,
                 salary: true,
                 extraDays: true,
                 overtimePay: true,
@@ -38,7 +74,7 @@ router.get('/:idNomina', async (req, res) => {
                 loans: true,
                 other: true,
                 total: true,
-                
+
                 staff: {
                     select: {
                         id: true,
@@ -52,11 +88,27 @@ router.get('/:idNomina', async (req, res) => {
             }
         })
 
+        const date = await prisma.nomina.findUnique({
+            where: {
+                id: Number(idNomina)
+            },
+            select: {
+                date: true,
+            }
+        })
+
         const totals = await nominaHanlder.getNominaTotals(Number(idNomina))
 
         response = {
             nominas: nominas,
-            totals: totals
+            totals: totals,
+            date: date ? date.date : "Registro no encontrado" 
+        }
+
+        if (date) {
+            res.json(resProcessor.concatStatus(200, response, nominas.length));
+        } else {
+            res.json(resProcessor.concatStatus(400, response, nominas.length));
         }
     } catch (error: any) {
         return res.json(handleError(error));
@@ -64,8 +116,6 @@ router.get('/:idNomina', async (req, res) => {
     } finally {
         await prisma.$disconnect();
     }
-
-    res.json(resProcessor.concatStatus(200, response, nominas.length));    
 })
 
 // ELIMINAR (LOGICO) MEDIANTE ID
@@ -168,7 +218,7 @@ router.put('/:idNomina/:idStaff', async (req, res) => {
 
 // CREAR NUEVO RECORD
 router.post('/', async (req, res) => {
-    let { idNomina, idStaff, date, salary, extraDays, overtimePay, sfs, afp, loans, other, total} = req.body
+    let { idNomina, idStaff, date, salary, extraDays, overtimePay, sfs, afp, loans, other, total } = req.body
 
     if (!(idNomina && idStaff && date && salary && extraDays && loans && other )) {
         return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos'));

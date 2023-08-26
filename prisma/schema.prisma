@@ -91,6 +91,8 @@ model Parent {
 
 model Family {
   id       Int       @id @default(autoincrement())
+  name     String
+
   //Relacion 1:N con Student
   students Student[]
   //Relación 1:N con Parent

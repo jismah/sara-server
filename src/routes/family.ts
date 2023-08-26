@@ -140,13 +140,40 @@ router.delete('/:id', async (req, res) => {
     res.json(resProcessor.concatStatus(200, family));
 })
 
+router.post('/:id', async (req, res) => {
+    const { id } = req.params
+    const { name } = req.body
+
+    let result;
+    try {
+        result = await prisma.family.update({
+            where: {
+                id: Number(id)
+            },
+            data: {
+                name: name
+            },
+        })
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+
+    res.status(200).json(resProcessor.concatStatus(200, result));
+})
+
 // CREAR
 router.post('/', async (req, res) => {
+    const { name } = req.body
 
     let result;
     try {
         result = await prisma.family.create({
-            data: {},
+            data: {
+                name: name
+            },
         })
     } catch (error: any) {
         return res.json(handleError(error));
