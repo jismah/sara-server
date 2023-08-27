@@ -109,6 +109,12 @@ router.put('/:idStudent/:idGroup', async (req, res) => {
     res.json(resProcessor.concatStatus(200, studentOnGroup));
 })
 
+router.post('/test', async (req, res) => {
+    const { nominas } = req.body;
+
+    res.json(nominas);
+})
+
 // CREAR NUEVO RECORD
 router.post('/', async (req, res) => {
     const { idStudent, idGroup, assignedBy} = req.body;

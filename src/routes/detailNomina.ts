@@ -118,6 +118,37 @@ router.get('/:idNomina', async (req, res) => {
     }
 })
 
+// CHECK MEDIANTE ID
+router.get('/validate/:idNomina/:idStaff', async (req, res) => {
+    const { idNomina, idStaff } = req.params
+
+    let nomina;
+    try {
+        nomina = await prisma.detailNomina.findUnique({
+            where: {
+                idNomina_idStaff: {
+                  idNomina: Number(idNomina),
+                  idStaff: Number(idStaff),
+                },
+            },
+            select: { 
+                deleted: true
+            }
+        })
+
+        if (nomina) {
+            res.json(resProcessor.concatStatus(201, nomina));
+        } else {
+            res.json(resProcessor.concatStatus(200, null))
+        }
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+})
+
 // ELIMINAR (LOGICO) MEDIANTE ID
 router.delete('/:idNomina/:idStaff', async (req, res) => {
     const { idNomina, idStaff } = req.params
@@ -148,13 +179,13 @@ router.delete('/:idNomina/:idStaff', async (req, res) => {
 // ACTUALIZAR MEDIANTE ID
 router.put('/:idNomina/:idStaff', async (req, res) => {
     const { idNomina, idStaff } = req.params
-    let { date, salary, extraDays, overtimePay, sfs, afp, loans, other, total } = req.body
+    let { date, salary, extraDays, overtimePay, sfs, afp, loans, other, total, deleted } = req.body
 
     if (!(idNomina && idStaff && date && salary && extraDays && loans && other )) {
         return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos'));
     }
 
-    const valid = await validate(idNomina, idStaff, date, salary, extraDays, overtimePay, sfs, afp, loans, other, total);
+    const valid = await validate(idNomina, idStaff, date, salary, extraDays, overtimePay, sfs, afp, loans, other, total, deleted);
     if (!valid.result) {
         return res.json(resProcessor.newMessage(400, valid.message));
     }
@@ -204,6 +235,7 @@ router.put('/:idNomina/:idStaff', async (req, res) => {
                 loans: loans,
                 other: other,
                 total: total,
+                deleted: validator.toBool(deleted.toString()),
             },
         })
     } catch (error: any) {
@@ -281,7 +313,7 @@ router.post('/', async (req, res) => {
     res.json(resProcessor.concatStatus(200, result));
 })
 
-function validate(idNomina: string, idStaff: string, date: string, salary: string, extraDays: string, overtimePay: string, sfs: string, afp: string, loans: string, other: string, total: string) {
+function validate(idNomina: string, idStaff: string, date: string, salary: string, extraDays: string, overtimePay: string, sfs: string, afp: string, loans: string, other: string, total: string, deleted?: string) {
 
     const numericChecks = [
         { value: idNomina, message: "Id de nomina no numerico" },
@@ -299,6 +331,10 @@ function validate(idNomina: string, idStaff: string, date: string, salary: strin
     let message = "";
     if (date && !validator.validateDate(date)) {
         message = "Formato de fecha de nomina invalido";
+        return {result: false, message: message}
+    }
+    if (deleted && !validator.isBoolean(deleted)) {
+        message = "Se recibio un valor no booleano para el parametro 'deleted'";
         return {result: false, message: message}
     }
 

@@ -14,21 +14,21 @@ function handleError(error: any) {
 }
 
 router.post('/doc', async (req, res) => {
-    const { nominaId,  accountType, accountCurrency, accountNumber} = req.body
+    const { idNomina,  accountType, accountCurrency, accountNumber} = req.body
 
-    if (!nominaId || !accountType || !accountCurrency || !accountNumber) {
+    if (!idNomina || !accountType || !accountCurrency || !accountNumber) {
         return res.json(resProcessor.newMessage(400, '[Nomina] Faltan datos requeridos'));
     }
 
-    if (!validator.isNumeric(nominaId)) {
+    if (!validator.isNumeric(idNomina.toString())) {
         return res.json(resProcessor.newMessage(400, "[Nomina] Se recibio un idNomina invalido al intentar crear el documento bancario"))
     }
 
-    if (!validator.isNumeric(accountNumber)) {
+    if (!validator.isNumeric(accountNumber.toString())) {
         return res.json(resProcessor.newMessage(400, "[Nomina] Se recibio un numero de cuenta no numerico al intentar crear el documento bancario"))
     }
 
-    res.json(await nominaHandler.getBankDoc(Number(nominaId), accountType, accountCurrency, accountNumber));
+    res.json(await nominaHandler.getBankDoc(Number(idNomina), accountType.toString(), accountCurrency.toString(), accountNumber.toString()));
 });
 
 router.get('/quincenal', async (req, res) => {

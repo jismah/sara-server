@@ -123,25 +123,25 @@ router.put('/:id', async (req, res) => {
 // CREAR UN NUEVO PROGRMA
 router.post('/', async (req, res) => {
     const { description, maxStudents, inscription, monthlyAmount, status } = req.body
-
-    const valid = await validate(maxStudents, inscription, monthlyAmount, status);
-    if (!valid.result) {
-        return res.json(resProcessor.newMessage(400, valid.message));
+    
+    if (!(description.toString() && maxStudents.toString() && inscription.toString() && monthlyAmount.toString())) {
+        return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos'));
     }
 
-    if (!(description && maxStudents && inscription && monthlyAmount)) {
-        return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos'));
+    const valid = await validate(maxStudents.toString(), inscription.toString(), monthlyAmount.toString(), status.toString());
+    if (!valid.result) {
+        return res.json(resProcessor.newMessage(400, valid.message));
     }
 
     let result;
     try {
         result = await prisma.program.create({
             data: {
-                description: description,
-                maxStudents: Number(maxStudents),
-                inscription: parseFloat(inscription),
-                monthlyAmount: parseFloat(monthlyAmount),
-                status: status ? validator.toBool(status) : undefined,
+                description: description.toString(),
+                maxStudents: Number(maxStudents.toString()),
+                inscription: parseFloat(inscription.toString()),
+                monthlyAmount: parseFloat(monthlyAmount.toString()),
+                status: status ? validator.toBool(status.toString()) : undefined,
             },
         })
     } catch (error: any) {

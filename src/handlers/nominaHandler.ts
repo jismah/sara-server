@@ -419,8 +419,11 @@ class NominaHanlder {
         }
     
         const doc = docParts.join("\n");
-    
-        return resProcessor.concatStatus(200, doc);
+        const response = {
+          document: doc,
+          date: nomina.date
+        }
+        return resProcessor.concatStatus(200, response);
 
       } catch (error) {
         return this.handleError(error);

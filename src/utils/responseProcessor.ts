@@ -9,11 +9,11 @@ class responseProcessor {
         instance = this;
     } 
 
-    newMessage(code: Number, message: string | undefined) {
+    newMessage(code: number, message: string | undefined) {
         return { status: this.getStatus(code), code: code, response: {message: message}}
     }
 
-    concatStatus(code: Number, json: any, total?: Number) {
+    concatStatus(code: number, json: any, total?: Number) {
         if (!total) {
             total = 0
         }
@@ -22,13 +22,13 @@ class responseProcessor {
         return res;
     }
 
-    getStatus(code: Number) {
+    getStatus(code: number) {
         let status;
-        if (code == 200) {
+        if (code >= 200 && code < 300) {
             status = 'SUCCESS';
         } else {
             status = 'ERROR';
-        }
+        }        
         return status;
     }
 }
