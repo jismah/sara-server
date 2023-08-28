@@ -71,7 +71,7 @@ router.post('/', async (req, res) => {
         if (!validStudent.result) {
             return res.json(resProcessor.newMessage(400, validStudent.message));
         }
-    } catch {
+    } catch (error) {
         return res.json(resProcessor.newMessage(500, "Ocurio un error de validación durante la inscripción"));
     }
 
@@ -172,7 +172,7 @@ router.post('/', async (req, res) => {
 function validatePediatrician(pediatrician: any) {
     let message = "";
 
-    if (!(pediatrician.name && pediatrician.medicalInstitution && pediatrician.officeNumber && pediatrician.phone)) {
+    if (!(pediatrician.name?.toString() && pediatrician.medicalInstitution?.toString() && pediatrician.officeNumber?.toString() && pediatrician.phone?.toString())) {
         message = "Faltan datos requeridos para el pediatra";
         return {result: false, message: message}
     }
@@ -187,7 +187,7 @@ function validatePediatrician(pediatrician: any) {
 function validateTutor(tutor: any) {
     let message = "";
 
-    if (!(tutor.name && tutor.phone)) {
+    if (!(tutor.name?.toString() && tutor.phone?.toString())) {
         message = "Faltan datos requeridos para uno o más tutores";
         return {result: false, message: message}
     }
@@ -212,7 +212,7 @@ function validateEmergencyContact(emergencyContact: any) {
 async function validateParent(parent: any) {
     let message = "";
 
-    if (!(parent.identityCard && parent.name && parent.lastName1 && parent.email)) {
+    if (!(parent.identityCard?.toString() && parent.name?.toString() && parent.lastName1?.toString() && parent.email?.toString())) {
         message = "Faltan datos requeridos para uno o más padres";
         return {result: false, message: message}
     }
@@ -239,7 +239,7 @@ async function validateParent(parent: any) {
 function validateStudent(student: any) {
     let message = "";
 
-    if (!(student.name && student.lastName1 && student.status && student.dateBirth && student.housePhone && student.address && student.idCity && student.idProgram)) {
+    if (!(student.name?.toString() && student.lastName1?.toString() && student.status?.toString() && student.dateBirth?.toString() && student.housePhone?.toString() && student.address?.toString() && student.idCity?.toString() && student.idProgram?.toString())) {
         message = "Faltan datos requeridos del estudiante";
         return {result: false, message: message}
     }
