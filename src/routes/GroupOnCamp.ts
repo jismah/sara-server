@@ -113,7 +113,7 @@ router.put('/:idCamp/:idGroup', async (req, res) => {
 router.post('/', async (req, res) => {
     const { idCamp, idGroup, assignedBy} = req.body;
 
-    if (!(idCamp && idGroup && assignedBy)) {
+    if (!(idCamp && idGroup)) {
         return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos' ));
     }
 
@@ -128,7 +128,7 @@ router.post('/', async (req, res) => {
             data: {
                 idCamp: Number(idCamp),
                 idGroup: Number(idGroup),
-                assignedBy: assignedBy,
+                assignedBy: assignedBy ? assignedBy.toString() : undefined,
             },
         })
     } catch (error: any) {

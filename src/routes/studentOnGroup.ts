@@ -109,17 +109,11 @@ router.put('/:idStudent/:idGroup', async (req, res) => {
     res.json(resProcessor.concatStatus(200, studentOnGroup));
 })
 
-router.post('/test', async (req, res) => {
-    const { nominas } = req.body;
-
-    res.json(nominas);
-})
-
 // CREAR NUEVO RECORD
 router.post('/', async (req, res) => {
     const { idStudent, idGroup, assignedBy} = req.body;
 
-    if (!(idStudent && idGroup && assignedBy)) {
+    if (!(idStudent && idGroup)) {
         return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos' ));
     }
 
@@ -134,7 +128,7 @@ router.post('/', async (req, res) => {
             data: {
                 idStudent: Number(idStudent),
                 idGroup: Number(idGroup),
-                assignedBy: assignedBy,
+                assignedBy: assignedBy ? assignedBy.toString() : undefined,
             },
         })
     } catch (error: any) {

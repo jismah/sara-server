@@ -9,7 +9,7 @@ const router = Router();
 const prisma = new PrismaClient()
 
 function handleError(error: any) {
-    const object = "StudentGroup";
+    const object = "Group";
     return errorHandler.checkError(object, error);
 }
 
@@ -141,6 +141,114 @@ router.put('/:id', async (req, res) => {
 })
 
 // CREAR NUEVO RECORD
+router.post('/bulk', async (req, res) => {
+    const { maxStudents, idShift, professors, students, camps } = req.body;
+
+    if (!(maxStudents?.toString() && idShift?.toString() && professors && students && camps)) {
+        return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos' ));
+    }
+
+    const valid = await validate(maxStudents.toString(), idShift.toString());
+    if (!valid.result) {
+        return res.json(resProcessor.newMessage(400, valid.message));
+    }
+
+    if (!Array.isArray(professors) || professors.length === 0) {
+        return res.json(resProcessor.newMessage(400, 'Se requiere al menos 1 profesor'));
+    } else {
+        for (const professor of professors) {
+            const valid = validateId(professor.id.toString());
+            if (!valid.result) {
+                return res.json(resProcessor.newMessage(400, valid.message));
+            }
+        } 
+    }
+
+    if (!Array.isArray(students) || students.length === 0) {
+        return res.json(resProcessor.newMessage(400, 'Se requiere al menos 1 estudiante'));
+    } else {
+        for (const student of students) {
+            const valid = validateId(student.id.toString());
+            if (!valid.result) {
+                return res.json(resProcessor.newMessage(400, valid.message));
+            }
+        } 
+    }
+
+    if (!Array.isArray(camps)) {
+        return res.json(resProcessor.newMessage(400, 'Camps debe ser un arreglo'));
+    } else {
+        for (const camp of camps) {
+            const valid = validateId(camp.id.toString());
+            if (!valid.result) {
+                return res.json(resProcessor.newMessage(400, valid.message));
+            }
+        } 
+    }
+
+    
+    try {
+        await prisma.$transaction(async (prisma) => {
+            let result;
+            const group = await prisma.group.create({
+                data: {
+                    maxStudents: Number(maxStudents.toString()),
+                    idShift: Number(idShift.toString()),
+                },
+            })
+
+            const resultProfessors: any = [];
+            for (const profesor of professors) {
+                const result = await prisma.professorsForGroup.create({
+                    data: {
+                        idProfessor: Number(profesor.id.toString()),
+                        idGroup: Number(group.id.toString()),
+                    },
+                })
+                resultProfessors.push(result);
+            }
+
+            const resultStudents: any = [];
+            for (const student of students) {
+                const result = await prisma.studentOnGroup.create({
+                    data: {
+                        idStudent: Number(student.id.toString()),
+                        idGroup: Number(group.id.toString()),
+                    },
+                })
+                resultStudents.push(result);
+            }
+
+            const resultCamps: any = [];
+            for (const camp of camps) {
+                result = await prisma.groupOnCamp.create({
+                    data: {
+                        idCamp: Number(camp.id.toString()),
+                        idGroup: Number(group.id.toString()),
+                    },
+                })
+                resultCamps.push(result);
+            }
+
+            result = {
+                group: group,
+                professors: resultProfessors,
+                students: resultStudents,
+                camps: resultCamps
+            }
+
+            res.status(200).json(resProcessor.concatStatus(200, result));
+        });
+
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+})
+
+// CREAR NUEVO RECORD
 router.post('/', async (req, res) => {
     const { maxStudents, idShift } = req.body;
 
@@ -180,6 +288,16 @@ async function validate(maxStudents: string, idShift: string) {
     }
     if (idShift && !validator.isNumeric(idShift)) {
         message = "Id de la tanda invalido: No numerico.";
+        return {result: false, message: message}
+    }
+    return {result: true}
+}
+
+function validateId(id: string) {
+    
+    let message = "";
+    if (id && !validator.isNumeric(id)) {
+        message = "Se recivio un id invalido";
         return {result: false, message: message}
     }
     return {result: true}

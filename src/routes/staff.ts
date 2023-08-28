@@ -126,8 +126,28 @@ router.delete('/:id', async (req, res) => {
 
 // ACTUALIZAR UN STAFF MEDIANTE ID
 router.put('/:id', async (req, res) => {
-    const { id } = req.params
-    const { name, lastName1, lastName2, phone, salary, email, position, address, idCity, dateBirth, dateStart, dateFinish, status, cedula, bankAccount, AccountType, currency, bankRoute } = req.body
+    let { id } = req.params
+    let { name, lastName1, lastName2, phone, salary, email, position, address, idCity, dateBirth, dateStart, dateFinish, status, cedula, bankAccount, AccountType, currency, bankRoute } = req.body
+
+    id = String(id);
+    name = String(name);
+    lastName1 = String(lastName1);
+    lastName2 = String(lastName2);
+    phone = String(phone);
+    salary = String(salary);
+    email = String(email);
+    position = String(position);
+    address = String(address);
+    idCity = String(idCity);
+    dateBirth = String(dateBirth);
+    dateStart = String(dateStart);
+    dateFinish = String(dateFinish);
+    status = String(status);
+    cedula = String(cedula);
+    bankAccount = String(bankAccount);
+    AccountType = String(AccountType);
+    currency = String(currency);
+    bankRoute = String(bankRoute);
 
     const valid = await validate(phone, salary, idCity, email, dateBirth, dateStart, dateFinish, cedula, status);
     if (!valid.result) {
@@ -174,7 +194,26 @@ router.put('/:id', async (req, res) => {
 
 // CREAR UN NUEVO STAFF
 router.post('/', async (req, res) => {
-    const { name, lastName1, lastName2, phone, salary, email, position, address, idCity, dateBirth, dateStart, dateFinish, status, cedula, bankAccount, AccountType, currency, bankRoute } = req.body
+    let { name, lastName1, lastName2, phone, salary, email, position, address, idCity, dateBirth, dateStart, dateFinish, status, cedula, bankAccount, AccountType, currency, bankRoute } = req.body
+
+    name = String(name);
+    lastName1 = String(lastName1);
+    lastName2 = String(lastName2);
+    phone = String(phone);
+    salary = String(salary);
+    email = String(email);
+    position = String(position);
+    address = String(address);
+    idCity = String(idCity);
+    dateBirth = String(dateBirth);
+    dateStart = String(dateStart);
+    dateFinish = String(dateFinish);
+    status = String(status);
+    cedula = String(cedula);
+    bankAccount = String(bankAccount);
+    AccountType = String(AccountType);
+    currency = String(currency);
+    bankRoute = String(bankRoute);
 
     if (!(name && lastName1 && phone && salary && email && position && address && idCity && dateBirth && dateStart && status && cedula && bankAccount && AccountType && currency && bankRoute)) {
         return res.json(resProcessor.newMessage(400, 'Faltan datos requeridos'));
