@@ -178,7 +178,7 @@ function validatePediatrician(pediatrician: any) {
         return {result: false, message: message}
     }
 
-    if (pediatrician.phone.toString() && !validator.validatePhone(pediatrician.phone.toString())) {
+    if (pediatrician.phone?.toString() && !validator.validatePhone(pediatrician.phone?.toString())) {
         message = "Formato de telefono de pediatra invalido";
         return {result: false, message: message}
     }
@@ -193,7 +193,7 @@ function validateTutor(tutor: any) {
         return {result: false, message: message}
     }
 
-    if (tutor.phone.toString() && !validator.validatePhone(tutor.phone.toString())) {
+    if (tutor.phone?.toString() && !validator.validatePhone(tutor.phone?.toString())) {
         message = "Formato de telefono de uno o más tutores invalido";
         return {result: false, message: message}
     }
@@ -203,7 +203,7 @@ function validateTutor(tutor: any) {
 function validateEmergencyContact(emergencyContact: any) {   
     let message = "";
 
-    if (emergencyContact.phone.toString() && !validator.validatePhone(emergencyContact.phone.toString())) {
+    if (emergencyContact.phone?.toString() && !validator.validatePhone(emergencyContact.phone?.toString())) {
         message = "Formato de telefono de uno o más contactos de emergencia invalidos";
         return {result: false, message: message}
     }
@@ -218,19 +218,19 @@ async function validateParent(parent: any) {
         return {result: false, message: message}
     }
 
-    if (parent.identityCard.toString() && !(await validator.isUnique("parent", "identityCard", parent.identityCard.toString()))) {
+    if (parent.identityCard?.toString() && !(await validator.isUnique("parent", "identityCard", parent.identityCard.toString()))) {
         message = "La identificacion del padre debe ser unica. (identityCard not unique)";
         return {result: false, message: message}
     }
-    if (parent.email.toString() && !validator.validateEmail(parent.email.toString())) {
+    if (parent.email?.toString() && !validator.validateEmail(parent.email.toString())) {
         message = "Formato de email de un padre invalido";
         return {result: false, message: message}
     }
-    if (parent.email.toString() && !(await validator.isUnique("parent", "email", parent.email.toString()))) {
+    if (parent.email?.toString() && !(await validator.isUnique("parent", "email", parent.email.toString()))) {
         message = "El email de un padre ya esta en uso";
         return {result: false, message: message}
     }
-    if (parent.phone.toString() && !validator.validatePhone(parent.phone.toString())) {
+    if (parent.phone?.toString() && !validator.validatePhone(parent.phone.toString())) {
         message = "Formato de telefono de uno o más padres invalido";
         return {result: false, message: message}
     }
@@ -245,27 +245,27 @@ function validateStudent(student: any) {
         return {result: false, message: message}
     }
 
-    if (student.status.toString() && !StatusStudent.includes(student.status.toString())) {
+    if (student.status?.toString() && !StatusStudent.includes(student.status.toString())) {
         message = "Status de estudiante invalido";
         return {result: false, message: message} 
     }
-    if (student.housePhone.toString() && !validator.validatePhone(student.housePhone.toString())) {
+    if (student.housePhone?.toString() && !validator.validatePhone(student.housePhone.toString())) {
         message = "Formato de telefono de casa de estudiante invalido";
         return {result: false, message: message}
     }
-    if (student.dateBirth.toString() && !validator.validateDate(student.dateBirth.toString())) {
+    if (student.dateBirth?.toString() && !validator.validateDate(student.dateBirth.toString())) {
         message = "Formato de fecha de nacimiento de estudiante invalido";
         return {result: false, message: message}
     }
-    if (student.allowedPictures.toString() && !validator.isBoolean(student.allowedPictures.toString())) {
+    if (student.allowedPictures?.toString() && !validator.isBoolean(student.allowedPictures.toString())) {
         message = "Entrada invalida no boolena para allowedPictures";
         return {result: false, message: message}
     }
-    if (student.idCity.toString() && !validator.isNumeric(student.idCity.toString())) {
+    if (student.idCity?.toString() && !validator.isNumeric(student.idCity.toString())) {
         message = "Id de la cuidad invalido: No numerico";
         return {result: false, message: message}
     }
-    if (student.idProgram.toString() && !validator.isNumeric(student.idProgram.toString())) {
+    if (student.idProgram?.toString() && !validator.isNumeric(student.idProgram.toString())) {
         message = "Id del programa invalido: No numerico";
         return {result: false, message: message}
     }
