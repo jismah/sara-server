@@ -240,15 +240,11 @@ async function validateParent(parent: any) {
 function validateStudent(student: any) {
     let message = "";
 
-    if (!(student.name?.toString() && student.lastName1?.toString() && student.status?.toString() && student.dateBirth?.toString() && student.housePhone?.toString() && student.address?.toString() && student.idCity?.toString() && student.idProgram?.toString())) {
+    if (!(student.name?.toString() && student.lastName1?.toString() && student.dateBirth?.toString() && student.housePhone?.toString() && student.address?.toString() && student.idCity?.toString() && student.idProgram?.toString())) {
         message = "Faltan datos requeridos del estudiante";
         return {result: false, message: message}
     }
 
-    if (student.status?.toString() && !StatusStudent.includes(student.status.toString())) {
-        message = "Status de estudiante invalido";
-        return {result: false, message: message} 
-    }
     if (student.housePhone?.toString() && !validator.validatePhone(student.housePhone.toString())) {
         message = "Formato de telefono de casa de estudiante invalido";
         return {result: false, message: message}
