@@ -80,8 +80,11 @@ router.delete('/:id', async (req, res) => {
 
     let result;
     try {
-        result = await prisma.receipt.delete({
+        result = await prisma.receipt.update({
             where: { id: Number(id) },
+            data: {
+                deleted: true,
+            }
         })
     } catch (error: any) {
         return res.json(handleError(error));

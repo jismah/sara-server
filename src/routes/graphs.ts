@@ -143,4 +143,43 @@ router.get('/studentPrograms', async (req, res) => {
     return res.json(resProcessor.concatStatus(200, formattedData));
 });
 
+router.get('/recentInscriptions', async (req, res) => {
+    const { cant } = req.query;
+    let limit;
+
+    if (cant) {
+        if (!validator.isNumeric(cant.toString())) {
+            return res.json(resProcessor.newMessage(400, "Cantidad dada no numerica"))
+        }
+        limit = Number(cant);
+
+        if (limit <= 0) {
+            return res.json(resProcessor.newMessage(400, "Cantidad dada debe ser mayor que 0"))
+        }
+    } else {
+        limit = 5; // Default
+    }
+
+    let students;
+    try {
+        students = await prisma.student.findMany({
+            where: {
+              deleted: false,
+              status: "PENDING_CHECK",
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            take: limit
+          });
+    } catch (error: any) {
+        return res.json(handleError(error));
+        
+    } finally {
+        await prisma.$disconnect();
+    }
+    
+    return res.json(resProcessor.concatStatus(200, students));
+});
+
 export default router;
