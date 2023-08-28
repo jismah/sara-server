@@ -102,6 +102,9 @@ model Family {
   //Relacion 1:1 con user
   user     User?
 
+  //Relación 1:N con Parent
+  recipts Receipt[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deleted   Boolean  @default(false)
@@ -637,6 +640,9 @@ model Receipt {
   textAmount  String
   concept     String
   method      String
+
+  idFamily    Int
+  family      Family @relation(fields: [idFamily], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
