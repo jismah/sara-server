@@ -72,6 +72,7 @@ router.post('/', async (req, res) => {
             return res.json(resProcessor.newMessage(400, validStudent.message));
         }
     } catch (error) {
+        console.log(error);
         return res.json(resProcessor.newMessage(500, "Ocurio un error de validación durante la inscripción"));
     }
 
