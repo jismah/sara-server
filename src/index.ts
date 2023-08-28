@@ -45,6 +45,7 @@ import nominaRouter from './routes/nomina';
 import detailNominaRouter from './routes/detailNomina'
 import graphRouter from './routes/graphs';
 import inscriptionRouter from './routes/inscription';
+import reciptsRouter from './routes/receipts';
 
 import errorHandler from './handlers/errorHandler';
 
@@ -150,6 +151,7 @@ app.use('/api/nomina', nominaRouter);
 app.use('/api/detailNomina', detailNominaRouter);
 app.use('/api/graphs', graphRouter);
 app.use('/api/inscription', inscriptionRouter);
+app.use('/api/receipts', reciptsRouter);
 
 app.listen(PORT, () =>
     console.log(`SARA REST API server ready at: http://localhost:${PORT}`),

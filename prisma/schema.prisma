@@ -629,6 +629,20 @@ model AuthKey {
   deleted   Boolean  @default(false)
 }
 
+model Receipt {
+  id          Int     @id @default(autoincrement())
+  date        String
+  nameFrom    String
+  amount      Float
+  textAmount  String
+  concept     String
+  method      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
 enum UserRole {
   SUPERADMIN
   ADMIN
