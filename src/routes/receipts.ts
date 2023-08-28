@@ -15,7 +15,8 @@ function handleError(error: any) {
 }
 
 // LISTAR POR FECHA
-router.get('/', async (req, res) => {
+router.get('/:idFamily', async (req, res) => {
+    const { idFamily } = req.params;
     let { year, month, day } = req.query;
 
     if (!year || !validator.isNumeric(year.toString())) {
@@ -32,12 +33,14 @@ router.get('/', async (req, res) => {
         day = day.toString().padStart(2, '0');
     }
 
-    console.log(year, month, day)
-
     let results;
     try {
         results = await prisma.receipt.findMany({
-            where: { date: `${year}-${month}-${day}` },
+            where: {
+                idFamily: Number(idFamily.toString()),
+                date: `${year}-${month}-${day}`,
+                deleted: false,
+            },
         })
     } catch (error: any) {
         return res.json(handleError(error));
@@ -50,13 +53,16 @@ router.get('/', async (req, res) => {
 });
 
 // LISTAR MEDIANTE ID
-router.get('/:id', async (req, res) => {
-    const { id } = req.params
+router.get('/family/:idFamily', async (req, res) => {
+    const { idFamily } = req.params
 
     let result;
     try {
-        result = await prisma.receipt.findUnique({
-            where: { id: Number(id) },
+        result = await prisma.receipt.findMany({
+            where: { 
+                idFamily: Number(idFamily),
+                deleted: false 
+            },
         })
     } catch (error: any) {
         return res.json(handleError(error));
@@ -65,7 +71,7 @@ router.get('/:id', async (req, res) => {
         await prisma.$disconnect();
     }
 
-    res.json(resProcessor.concatStatus(200, result));
+    res.json(resProcessor.concatStatus(200, result, result.length));
 })
 
 // ELIMINAR (LOGICO) MEDIANTE ID

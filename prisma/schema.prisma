@@ -103,7 +103,7 @@ model Family {
   user     User?
 
   //Relación 1:N con Parent
-  recipts Receipt[]
+  receipts Receipt[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

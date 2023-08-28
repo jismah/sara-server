@@ -55,6 +55,44 @@ router.get('/:id', async (req, res) => {
     res.json(resProcessor.concatStatus(200, family));
 })
 
+// LISTAR MEDIANTE ID
+router.get('/info/receipts', async (req, res) => {
+    try {
+        const family = await prisma.family.findMany({
+            where: {
+                deleted: false,
+            },
+            include: {
+                students: {
+                    where: {
+                        deleted: false
+                    },
+                    select: {
+                        id: true
+                    }
+                },
+                receipts: {
+                    where: {
+                        deleted: false
+                    },
+                    select: {
+                        id: true
+                    },
+                }
+            },
+        });
+
+        if (family) {
+            res.json(resProcessor.concatStatus(200, family, family.length));
+        }
+    } catch (error) {
+        return res.json(handleError(error));
+    } finally {
+        await prisma.$disconnect();
+    }
+});
+
+
 // LISTAR ESTUDIANTES RELACIONADOS 
 router.get('/:id/students', async (req, res) => {
     const { id } = req.params
@@ -63,7 +101,8 @@ router.get('/:id/students', async (req, res) => {
     try {
         students = await prisma.student.findMany({
             where: { 
-                idFamily: Number(id)
+                idFamily: Number(id),
+                deleted: false
             },
         })
     } catch (error: any) {
@@ -84,7 +123,8 @@ router.get('/:id/parents', async (req, res) => {
     try {
         parents = await prisma.parent.findMany({
             where: { 
-                idFamily: Number(id)
+                idFamily: Number(id),
+                deleted: false
             },
         })
     } catch (error: any) {

@@ -212,7 +212,7 @@ function validateEmergencyContact(emergencyContact: any) {
 async function validateParent(parent: any) {
     let message = "";
 
-    if (!(parent.identityCard && parent.name && parent.lastName1 && parent.email && parent.idFamily)) {
+    if (!(parent.identityCard && parent.name && parent.lastName1 && parent.email)) {
         message = "Faltan datos requeridos para uno o más padres";
         return {result: false, message: message}
     }
@@ -233,18 +233,13 @@ async function validateParent(parent: any) {
         message = "Formato de telefono de uno o más padres invalido";
         return {result: false, message: message}
     }
-
-    if (parent.idFamily.toString() && !validator.isNumeric(parent.idFamily.toString())) {
-        message = "Id de la familia invalido: No numerico";
-        return {result: false, message: message}
-    }
     return {result: true}
 }
 
 function validateStudent(student: any) {
     let message = "";
 
-    if (!(student.name && student.lastName1 && student.status && student.dateBirth && student.housePhone && student.address && student.idFamily && student.idCity && student.idProgram)) {
+    if (!(student.name && student.lastName1 && student.status && student.dateBirth && student.housePhone && student.address && student.idCity && student.idProgram)) {
         message = "Faltan datos requeridos del estudiante";
         return {result: false, message: message}
     }
@@ -271,11 +266,6 @@ function validateStudent(student: any) {
     }
     if (student.idProgram.toString() && !validator.isNumeric(student.idProgram.toString())) {
         message = "Id del programa invalido: No numerico";
-        return {result: false, message: message}
-    }
-
-    if (student.idFamily.toString() && !validator.isNumeric(student.idFamily.toString())) {
-        message = "Id de la familia invalido: No numerico";
         return {result: false, message: message}
     }
     return {result: true}
