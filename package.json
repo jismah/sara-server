@@ -22,6 +22,8 @@
     "typescript": "^5.0.3"
   },
   "dependencies": {
+    "@pdfme/common": "^2.2.0",
+    "@pdfme/generator": "^2.2.0",
     "@prisma/client": "^5.2.0",
     "cors": "^2.8.5",
     "crypto-random-string": "^5.0.0",
